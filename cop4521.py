@@ -8,7 +8,7 @@ from matplotlib import style
 from mpl_finance import candlestick_ohlc
 import matplotlib.dates as mdates
 import pandas as pd
-import pandas_datareader as web
+import pandas_datareader.data as web
 
 
 print ("Welcome to the COP4521 Python Financial Advisor")
