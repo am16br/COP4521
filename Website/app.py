@@ -1,18 +1,11 @@
-#########################################################################
-# Alexander Marcano - agm18h
-# due 07/30/2020
-# The program in this file is the work of Alexander Marcano, ..., ...
-######################################################################
-
-#python-env\Scripts\activate.bat
-#Line used to enter python env in windows cmd
-
 from flask import *
 import os
 import datetime as dt
 from datetime import date
 import pandas as pd
 import pandas_datareader.data as web
+import sqlite3  #importing sqlite3
+import csv
 
 app = Flask(__name__)
 #Default port is '127.0.0.1:5000'
@@ -37,6 +30,49 @@ def index():
 #takes you to the home page
 @app.route('/charts')                                                 #home page
 def charts():
+    #ticker = input ("Enter stock ticker: ")
+    ticker = request.form['ticker']
+    years = request.form['years']
+    csvname = (ticker + '.csv')
+    dbname = (ticker + '.db')
+    if os.path.exists(csvname):
+      os.remove(csvname)
+    #years = int(input("Enter number of years to check stock data: "))
+    endDate = date.today()
+    startDate = date(endDate.year - years, endDate.month, endDate.day)
+
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    df.to_csv(csvname)
+ 
+    conn = sqlite3.connect(dbname) #connecting to/creating/opening database
+
+    cur = conn.cursor()                     #setting cursor
+    cur.execute('''CREATE TABLE Stock (
+                        Date DATE,
+                        High FLOAT,
+                        Low FLOAT,
+                        Open FLOAT,
+                        Close FLOAT,
+                        Volume FLOAT,
+                        AdjClose FLOAT);''')
+    conn.close()
+
+    with sqlite3.connect(dbname) as con:  #connecting database
+       cur = con.cursor()
+       with open(csvname) as csv_file:
+           csv_reader = csv.reader(csv_file, delimiter=',')
+           line_count = 0
+           for row in csv_reader:
+               Date = row[0]
+               High = row[1]
+               Low = row[2]
+               Open = row[3]
+               Close = row[4]
+               Volume = row[5]
+               AdjClose = row[6]
+               cur.execute("""INSERT INTO Stock
+                           (Date, High, Low , Open, Close, Volume, AdjClose)
+                           VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
     return render_template('charts.html')
 
 #takes you to the home page
