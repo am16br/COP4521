@@ -22,7 +22,7 @@ df.to_csv(csvname)
 conn = sqlite3.connect(dbname) #connecting to/creating/opening database
 
 cur = conn.cursor()                     #setting cursor
-cur.execute('''CREATE TABLE Stock (
+cur.execute('''CREATE TABLE IF NOT EXISTS Stock (
                     Date DATE,
                     High FLOAT,
                     Low FLOAT,
@@ -34,6 +34,7 @@ conn.close()
 
 with sqlite3.connect(dbname) as con:  #connecting database
    cur = con.cursor()
+   cur.execute("""DELETE FROM Stock""")
    with open(csvname) as csv_file:
        csv_reader = csv.reader(csv_file, delimiter=',')
        line_count = 0
