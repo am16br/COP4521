@@ -60,7 +60,7 @@ def home():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-
+        os.delete(csvname)
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
