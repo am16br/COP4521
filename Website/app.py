@@ -13,33 +13,14 @@ app = Flask(__name__)
 #takes you to the home page
 @app.route('/')                                                 #home page
 def home():
-    csvname = ('^GSPC.csv')         #naming for s&P500
-    if os.path.exists(csvname):     #removing if it exists
-        os.remove(csvname)
-    endDate = date.today()
-    startDate = date(endDate.year - 5, endDate.month, endDate.day)
-    df = web.DataReader(^GSPC, 'yahoo', startDate, endDate) #reading open, high, low, close, and volume daily for S&P500 for last 5 years
-    df.to_csv(csvname)                              #dding dt to csv
-    return render_template('index.html')
-
-#if index is typed directly it redirects to '/'
-@app.route('/index', methods=['GET'])                           #takes you to the route
-def index():
-    return redirect(url_for('home'))
-
-#takes you to the home page
-@app.route('/charts')                                                 #home page
-def charts():
-    #ticker = input ("Enter stock ticker: ")
-    ticker = request.form['ticker']
-    years = request.form['years']
+    ticker = '^GSPC'
     csvname = (ticker + '.csv')
     dbname = (ticker + '.db')
     if os.path.exists(csvname):
       os.remove(csvname)
     #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
-    startDate = date(endDate.year - years, endDate.month, endDate.day)
+    startDate = date(endDate.year - 5, endDate.month, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -74,6 +55,17 @@ def charts():
                cur.execute("""INSERT INTO Stock
                            (Date, High, Low , Open, Close, Volume, AdjClose)
                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
+    return render_template('index.html')
+
+#if index is typed directly it redirects to '/'
+@app.route('/index', methods=['GET'])                           #takes you to the route
+def index():
+    return redirect(url_for('home'))
+
+#takes you to the home page
+@app.route('/charts')                                                 #home page
+def charts():
+    
     return render_template('charts.html')
 
 #takes you to the home page
