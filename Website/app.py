@@ -41,14 +41,13 @@ def home():
     cur = con.cursor()                              #setting cursor
 
     #Delete old table, to avoid duplicates
-    cur.execute("""DELETE FROM Stock""")
+    cur.execute("""DROP TABLE IF EXISTS STOCK""")
 
-    cur.execute('CREATE TABLE IF NOT EXISTS Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
+    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            line_count = 0
             for row in csv_reader:
                 Date = row[0]
                 High = row[1]
@@ -60,14 +59,18 @@ def home():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-        os.delete(csvname)
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
+        labels = ['this', 'might', 'work']
+        values = [20, 10, 30]
     except:
         con.rollback()                                      #in the event of an error rollback database
+        rows = "error in loading data"
+        labels = "error in loading data"
+        values = "error in loading data"
         print("error in insert operation")
     finally:
-        return render_template('index.html', rows=rows)
+        return render_template('index.html', rows=rows, labels=labels, values=values)
 
 #if index is typed directly it redirects to '/'
 @app.route('/index', methods=['GET'])                           #takes you to the route
