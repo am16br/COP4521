@@ -25,6 +25,8 @@ def home():
     ticker = '^GSPC'
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
+    labels = []
+    values = []
 
     if os.path.exists(csvname):
       os.remove(csvname)
@@ -59,15 +61,13 @@ def home():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
+
+                labels.append(Date)
+                values.append(50000)
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
-        labels = ['this', 'might', 'work']
-        values = [20, 10, 30]
     except:
         con.rollback()                                      #in the event of an error rollback database
-        rows = "error in loading data"
-        labels = "error in loading data"
-        values = "error in loading data"
         print("error in insert operation")
     finally:
         return render_template('index.html', rows=rows, labels=labels, values=values)
