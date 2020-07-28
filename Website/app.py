@@ -23,7 +23,7 @@ app = Flask(__name__, instance_relative_config=True)
 @app.route('/', methods = ['POST','GET'])                                                 #home page
 def home():
     if request.method == 'GET':     #initially loads S&P500
-        ticker = '^GSPC'    
+        ticker = '^GSPC'
     if request.method == 'POST':    #loads new stock
         ticker = request.form["ticker"]
     csvname = (ticker + '.csv')     #creating file to hold data
@@ -77,8 +77,19 @@ def home():
         print("error in insert operation")
         rows = 'error'
     finally:
-        return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values)
-
+        min=float(values[0])
+        max=float(values[0])
+        for item in values:
+            if float(item)>max:
+                max=float(item)
+            if float(item)<min:
+                min=float(item)
+        min=min-(min*0.25)
+        max=max+(max*0.25)
+        if ticker=="^GSPC":
+            ticker="S&P500"
+        return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+        con.close()
 
 #if index is typed directly it redirects to '/'
 @app.route('/index', methods=['GET','POST'])                           #takes you to the route
@@ -88,7 +99,7 @@ def index():
 @app.route('/stock', methods=['POST'])
 def stock():
     #similar to index for individual stocks
-    ticker = request.form["ticker"] 
+    ticker = request.form["ticker"]
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
@@ -139,7 +150,17 @@ def stock():
         print("error in insert operation")
         rows = 'error'
     finally:
-        return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values)
+        min=float(values[0])
+        max=float(values[0])
+        for item in values:
+            if float(item)>max:
+                max=float(item)
+            if float(item)<min:
+                min=float(item)
+        min=min-(min*0.25)
+        max=max+(max*0.25)
+        return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+        con.close()
 # @app.route('/tables')                                                 #home page
 # def tables():
 #     return render_template('tables.html')
