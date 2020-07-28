@@ -33,7 +33,7 @@ def home():
 
     #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
-    startDate = date(endDate.year - 5, endDate.month, endDate.day)
+    startDate = date(endDate.year - 1, endDate.month, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -50,7 +50,9 @@ def home():
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
             for row in csv_reader:
+                iterations = 0
                 Date = row[0]
                 High = row[1]
                 Low = row[2]
@@ -62,13 +64,17 @@ def home():
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
 
-                labels.append(Date)
-                values.append(50000)
+                if iterations < 200:
+                    labels.append(Date)
+                    # print('row 6 is ', row[6])
+                    values.append(row[6])
+                    iterations += 1
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
         con.rollback()                                      #in the event of an error rollback database
         print("error in insert operation")
+        rows = 'error'
     finally:
         return render_template('index.html', rows=rows, labels=labels, values=values)
 
