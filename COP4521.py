@@ -1,3 +1,20 @@
+#Aidan Martin   am16br@my.fsu.edu   6/28/20
+#The program in this file is the individual work of Aidan Martin
+import os
+import datetime as dt
+from datetime import date
+import matplotlib.pyplot as plt
+from matplotlib import style
+from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mdates
+import pandas as pd
+import pandas_datareader.data as web
+import matplotlib as mpl
+from yahoo_fin import stock_info as si
+
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 print ("Welcome to the COP4521 Python Financial Advisor")
 
 class Stock(object):
@@ -5,7 +22,7 @@ class Stock(object):
         self.tick = tick
         self.qty = qty
         self.purprice = purprice
-        self.price = 1000   #input current data from web
+        self.price = si.get_live_price(tick)   #input current data from web
     def modify(self, qty, price):
         self.purprice = (self.purprice*self.qty + qty*purprice) / (self.qty+qty)
         self.qty = self.qty + qty
@@ -16,13 +33,13 @@ class Stock(object):
     def get_purprice(self):
         return self.purprice
     def get_price(self):
-        return self.price    #import current price
+        return si.get_live_price(self.get_tick())    #import current price
     def get_inv(self):
         return self.qty*self.purprice
     def get_val(self):
         return self.qty*self.price   #change to price
     def get_growth(self):
-        return (self.qty*self.price)/(self.qty*self.purprice)*100
+        return (self.qty*self.get_price())/(self.qty*self.purprice)*100
 
 def Menu():
     print("""
@@ -48,11 +65,47 @@ while ans:
       #modify if already in portfolio
       portfolio.append( Stock(tick, qty, purprice) )    #add to list of stocks
     elif ans=="3":
-      stock = input("\nEnter stock ticker: ")
-      #check for validity with function
-      #Export data to csv
-      #use csv to make charts/analysis
-      # menus to choose timeframe, price (avg, adj close, etc), volume
+      ticker = input ("Enter stock ticker: ")
+      csvname = (ticker + '.csv')
+      if os.path.exists(csvname):
+        os.remove(csvname)
+      years = int(input("Enter number of years to check stock data: "))
+      endDate = date.today()
+      startDate = date(endDate.year - years, endDate.month, endDate.day)
+
+      df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+      df.to_csv(csvname)
+
+      style.use('ggplot')
+
+      df=pd.read_csv(csvname,parse_dates=True, index_col=0)
+
+      df_ohlc = df['Adj Close'].resample('10D').ohlc()
+      # can have any time frame to resample, or mean/sum/else instead of ohlc
+      df_volume = df['Volume'].resample('10D').sum()
+
+      #df_close = df['Adj Close']
+      #avgShort = df_close.rolling(window=50).mean()
+      #avgLong = df_close.rolling(window=100).mean()
+      #mpl.rc('figure', figsize=(8, 7))
+      #mpl.__version__
+      #df_close.plot(label=ticker)
+      #avgShort.plot(label='50DayMovingAverage')
+      #avgLong.plot(label='100DayMovingAverage')
+      #plt.legend()
+
+      df_ohlc.reset_index(inplace=True)
+
+      df_ohlc['Date'] = df_ohlc['Date'].map(mdates.date2num)
+
+      ax1 = plt.subplot2grid((6,1),(0,0), rowspan=5,colspan=1)
+      ax2 = plt.subplot2grid((6,1),(5,0), rowspan=1,colspan=1,sharex=ax1)
+      ax1.xaxis_date()
+      candlestick_ohlc(ax1, df_ohlc.values, width=2, colorup='g')
+      ax2.fill_between(df_volume.index.map(mdates.date2num), df_volume.values, 0)
+
+      plt.show()
+
     elif ans=="4":
       print ("Portfolio")
       x = 0
@@ -77,4 +130,3 @@ while ans:
       ans = None
     else:
        print ("\n Not Valid Choice Try again")
-
