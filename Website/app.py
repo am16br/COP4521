@@ -22,36 +22,34 @@ app = Flask(__name__, instance_relative_config=True)
 #takes you to the home page
 @app.route('/')                                                 #home page
 def home():
-    ticker = '^GSPC'
+    ticker = '^GSPC'                #setting up ticker for file names and usage
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
     values = []
 
-    if os.path.exists(csvname):
+    if os.path.exists(csvname):     #ensuring csv has newest data
       os.remove(csvname)
 
-    #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
     startDate = date(endDate.year - 1, endDate.month, endDate.day)
 
-    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)    #scraping stock data from web fpr given timeframe
     df.to_csv(csvname)
  
     con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
     cur = con.cursor()                              #setting cursor
 
-    #Delete old table, to avoid duplicates
-    cur.execute("""DROP TABLE IF EXISTS STOCK""")
-
+    cur.execute("""DROP TABLE IF EXISTS STOCK""")   #Delete old table, to avoid duplicates
+        #creating new table for stock with relative data
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             next(csv_reader)
-            for row in csv_reader:
+            for row in csv_reader:  #looping through csv to move data to database
                 iterations = 0
                 Date = row[0]
                 High = row[1]
@@ -62,7 +60,7 @@ def home():
                 AdjClose = row[6]
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
-                con.commit()
+                con.commit()    #comminting data to databse
 
                 if iterations < 200:
                     labels.append(Date)
