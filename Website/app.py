@@ -12,6 +12,31 @@ import pandas as pd
 import pandas_datareader.data as web
 import sqlite3  #importing sqlite3
 import csv
+from yahoo_fin import stock_info as si
+
+class Stock(object):
+    def __init__(self, tick, qty, purprice):
+        self.tick = tick
+        self.qty = qty
+        self.purprice = purprice
+        self.price = si.get_live_price(ticker)   #input current data from web
+    def modify(self, qty, price):
+        self.purprice = (self.purprice*self.qty + qty*purprice) / (self.qty+qty)
+        self.qty = self.qty + qty
+    def get_tick(self):
+        return self.tick
+    def get_qty(self):
+        return self.qty
+    def get_purprice(self):
+        return self.purprice
+    def get_price(self):
+        return si.get_live_price(ticker)    #import current price
+    def get_inv(self):
+        return self.qty*self.purprice
+    def get_val(self):
+        return self.qty*self.price   #change to price
+    def get_growth(self):
+        return (self.qty*self.get_price())/(self.qty*self.purprice)*100
 
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
