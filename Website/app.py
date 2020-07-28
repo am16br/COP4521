@@ -22,23 +22,21 @@ app = Flask(__name__, instance_relative_config=True)
 #takes you to the home page
 @app.route('/', methods = ['POST','GET'])                                                 #home page
 def home():
-    if request.method == 'GET':
-        ticker = '^GSPC'
-    if request.method == 'POST':
+    if request.method == 'GET':     #initially loads S&P500
+        ticker = '^GSPC'    
+    if request.method == 'POST':    #loads new stock
         ticker = request.form["ticker"]
-    csvname = (ticker + '.csv')
-    dbname = ('Projecto.db')
+    csvname = (ticker + '.csv')     #creating file to hold data
+    dbname = ('Projecto.db')        #creating database
     labels = []
     values = []
 
-    if os.path.exists(csvname):
+    if os.path.exists(csvname):     #ensuring data is most recent
       os.remove(csvname)
-
-    #years = int(input("Enter number of years to check stock data: "))
-    endDate = date.today()
+    endDate = date.today()          #setting dates to load data from
     startDate = date(endDate.year - 1, endDate.month, endDate.day)
 
-    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)    #scraping stock data from web for range of dates
     df.to_csv(csvname)
 
     con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
@@ -47,14 +45,14 @@ def home():
 
     #Delete old table, to avoid duplicates
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
-
+    #create table to hold relevant data
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             next(csv_reader)
-            for row in csv_reader:
+            for row in csv_reader:  #moving data from csv to database
                 iterations = 0
                 Date = row[0]
                 High = row[1]
@@ -65,7 +63,7 @@ def home():
                 AdjClose = row[6]
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
-                con.commit()
+                con.commit()    #committing data to database
 
                 if iterations < 200:
                     labels.append(Date)
@@ -86,17 +84,17 @@ def home():
 @app.route('/index', methods=['GET','POST'])                           #takes you to the route
 def index():
     return redirect(url_for('home'))
+
 @app.route('/stock', methods=['POST'])
 def stock():
-    ticker = request.form["ticker"]
+    #similar to index for individual stocks
+    ticker = request.form["ticker"] 
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
     values = []
     if os.path.exists(csvname):
       os.remove(csvname)
-
-    #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
     startDate = date(endDate.year - 1, endDate.month, endDate.day)
 
