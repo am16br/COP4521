@@ -77,9 +77,9 @@ def home():
         print("error in insert operation")
         rows = 'error'
     finally:
-        min=float(values[0])
+        min=float(values[0])        #setting min and max values for y-axis of chart
         max=float(values[0])
-        for item in values:
+        for item in values:         #modifying min and max values from list of stock values
             if float(item)>max:
                 max=float(item)
             if float(item)<min:
@@ -89,7 +89,7 @@ def home():
         if ticker=="^GSPC":
             ticker="S&P500"
         return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
-        con.close()
+        con.close()         #closing connection
 
 #if index is typed directly it redirects to '/'
 @app.route('/index', methods=['GET','POST'])                           #takes you to the route
