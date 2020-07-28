@@ -173,7 +173,7 @@ def portfolio():
      con = sqlite3.connect("Portfolio.db")                   #connecting to/creating/opening database
      con.row_factory = sqlite3.Row
      cur = con.cursor()                              #setting cursor
-
+     cur.execute("""DROP TABLE IF EXISTS STOCK""")
      cur.execute('CREATE TABLE Stock(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
      try:
          for obj in portfolio:
