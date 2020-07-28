@@ -198,6 +198,7 @@ def portfolio():
          rows = 'error'
      finally:
          return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+         con.close()
 # @app.route('/tables')                                                 #home page
 # def tables():
 #     return render_template('tables.html')
