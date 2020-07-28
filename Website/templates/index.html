@@ -117,14 +117,14 @@
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ol>
-                        <form method="post" action="simpleform.asp">
-                          Analyze Stock Ticker: <input type="text" name="ticker">
+                        <form method="post" action="{{ url_for('stock') }}">
+                          Stock Ticker: <input type="text" name="ticker">
                           <input type="submit" value="Submit">
                         </form>
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         <i class="fas fa-chart-area mr-1"></i>
-                                        S&P500 Chart
+                                        {{ticker}} Chart
                                     </div>
                                     <div class="card-body"><canvas id="myChart" width="100%" height="40"></canvas></div>
                                         <script>
@@ -193,7 +193,7 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table mr-1"></i>
-                                S&P500 DataTable
+                                {{ticker}} DataTable
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
