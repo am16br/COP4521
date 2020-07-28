@@ -161,6 +161,43 @@ def stock():
         max=max+(max*0.25)
         return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
         con.close()
+@app.route('/portfolio',methods=['POST'])                                                 #home page
+def portfolio():
+     portfolio = []
+     ticker = request.form["ticker"]
+     qty = request.form["qty"]
+     purprice = request.form["price"]
+     portfolio.append(Stock(ticker,qty,purprice))
+     inv = 0
+     val = 0
+     con = sqlite3.connect("Portfolio.db")                   #connecting to/creating/opening database
+     con.row_factory = sqlite3.Row
+     cur = con.cursor()                              #setting cursor
+
+     cur.execute('CREATE TABLE Stock(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
+     try:
+         for obj in portfolio:
+             ticker = obj.get_tick()
+             qty = obj.get_qty()
+             cost = obj.get_purprice()
+             price = obj.get_price()
+             investment = obj.get_inv()
+             value = obj.get_val()
+             growth = obj.get_growth()
+             cur.execute("""INSERT INTO Stock(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
+                         VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
+             con.commit()
+             inv = inv + obj.get_inv()
+             val = val + obj.get_val()
+         growth = val/inv *100.00
+         cur.execute('SELECT * FROM Stock')
+         rows = cur.fetchall();`
+     except:
+         con.rollback()                                      #in the event of an error rollback database
+         print("error in insert operation")
+         rows = 'error'
+     finally:
+         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 # @app.route('/tables')                                                 #home page
 # def tables():
 #     return render_template('tables.html')
