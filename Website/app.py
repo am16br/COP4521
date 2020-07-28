@@ -19,7 +19,7 @@ class Stock(object):
         self.tick = tick
         self.qty = qty
         self.purprice = purprice
-        self.price = si.get_live_price(ticker)   #input current data from web
+        self.price = si.get_live_price(tick)   #input current data from web
     def modify(self, qty, price):
         self.purprice = (self.purprice*self.qty + qty*purprice) / (self.qty+qty)
         self.qty = self.qty + qty
@@ -30,7 +30,7 @@ class Stock(object):
     def get_purprice(self):
         return self.purprice
     def get_price(self):
-        return si.get_live_price(ticker)    #import current price
+        return si.get_live_price(self.get_tick())    #import current price
     def get_inv(self):
         return self.qty*self.purprice
     def get_val(self):
