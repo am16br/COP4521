@@ -166,9 +166,9 @@ def stock():
 @app.route('/portfolio',methods=['GET','POST'])                                                 #home page
 def portfolio():
      portfolio = []
-     ticker = request.form["ticker"]
-     qty = request.form["qty"]
-     purprice = request.form["price"]
+    #  ticker = request.form["ticker"]
+    #  qty = request.form["qty"]
+    #  purprice = request.form["price"]
      portfolio.append(Stock(ticker,qty,purprice))
      inv = 0
      val = 0
@@ -193,7 +193,7 @@ def portfolio():
              val = val + obj.get_val()
          growth = val/inv *100.00
          cur.execute('SELECT * FROM Portfolio')
-         rows = cur.fetchall();`
+         rows = cur.fetchall()
      except:
          con.rollback()                                      #in the event of an error rollback database
          print("error in insert operation")
