@@ -161,7 +161,9 @@ def stock():
         max=max+(max*0.25)
         return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
         con.close()
-@app.route('/portfolio',methods=['POST'])                                                 #home page
+
+
+@app.route('/portfolio',methods=['GET','POST'])                                                 #home page
 def portfolio():
      portfolio = []
      ticker = request.form["ticker"]
@@ -191,7 +193,7 @@ def portfolio():
              val = val + obj.get_val()
          growth = val/inv *100.00
          cur.execute('SELECT * FROM Stock')
-         rows = cur.fetchall();`
+         rows = cur.fetchall()
      except:
          con.rollback()                                      #in the event of an error rollback database
          print("error in insert operation")
