@@ -202,13 +202,14 @@ def portfolio():
             inv = (cur.fetchone()[0])
             cur.execute('SELECT SUM(Value) FROM Portfolio')         #getting sum of current value to show growth/losses
             val = (cur.fetchone()[0])
+            growth = ((val-inv)/inv)*100
         except:
             con.rollback()                                      #in the event of an error rollback database
             print("error in insert operation")
             rows = 'error'
         finally:
             con.close()
-            return render_template('portfolio.html', rows=rows, investment=inv, value=val)  #rendering page/sending data
+            return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)  #rendering page/sending data
     else:                                       #if page just loaded, nothing added to db
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
@@ -216,7 +217,8 @@ def portfolio():
         inv = (cur.fetchone()[0])
         cur.execute('SELECT SUM(Value) FROM Portfolio')
         val = (cur.fetchone()[0])
-        return render_template('portfolio.html', rows=rows, investment=inv, value=val)
+        growth = ((val-inv)/inv)*100
+        return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
 
 
