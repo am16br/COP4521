@@ -39,30 +39,6 @@ class Stock(object):
     def get_growth(self):
         return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)
 
-
-def movingAvg(time, values, dates):
-    d = []
-    m = []
-    a = len(dates) / time
-    for x in a:
-        total=0
-        for y in time:
-            total = total + values[(x*y)+y]
-            date = dates[(x*y)+y]
-        ma = total / time
-    d.append(date)
-    m.append(ma)
-    return d, m
-
-def fibonacci(min, max):
-    level1 = max - ((max-min)*0.236)
-    level2 = max - ((max-min)*0.382)
-    level3 = max - ((max-min)*0.5)
-    level4 = max - ((max-min)*0.618)
-    level5 = max - ((max-min)*0.786)
-    level6 = max - ((max-min)*1)
-    return level1, level2, level3, level4, level5, level6
-
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
 
@@ -84,7 +60,7 @@ def home():
 
     #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
-    startDate = date(endDate.year, endDate.month - 6, endDate.day)
+    startDate = date(endDate.year-5, endDate.month, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -144,7 +120,7 @@ def stock():
     if os.path.exists(csvname):
         os.remove(csvname)
     endDate = date.today()
-    startDate = date(endDate.year - 1, endDate.month, endDate.day)
+    startDate = date(endDate.year - 5, endDate.month, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -206,43 +182,46 @@ def portfolio():
     con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
     cur = con.cursor()                              #setting cursor
+    cur.execute("""DROP TABLE IF EXISTS PORTFOLIO""")
     cur.execute('CREATE TABLE IF NOT EXISTS Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
 
     if request.method == 'POST':
-        portfolio = []
         ticker = request.form["ticker"]
         qty = request.form["qty"]
         purprice = request.form["price"]
-        portfolio.append(Stock(ticker,qty,purprice))
+        obj = Stock(ticker,qty,purprice)
         try:
-            for obj in portfolio:
-                ticker = obj.get_tick()
-                qty = obj.get_qty()
-                cost = '$' + str(obj.get_purprice())
-                price = '$' + str(obj.get_price())
-                investment = '$' + str(obj.get_inv())
-                value = '$' + str(obj.get_val())
-                growth = str(obj.get_growth()) + '%'
-                cur.execute("""INSERT INTO Portfolio(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
+            ticker = obj.get_tick()
+            qty = obj.get_qty()
+            cost = obj.get_purprice()
+            price = obj.get_price()
+            investment = obj.get_inv()
+            value = obj.get_val()
+            growth = obj.get_growth()
+            cur.execute("""INSERT INTO Portfolio(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
-                con.commit()
-                inv = inv + obj.get_inv()
-                val = val + obj.get_val()
+            con.commit()
             cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
+            cur.execute('SELECT SUM(Investment) FROM Portfolio')
+            inv = cur.fetchall()
+            cur.execute('SELECT SUM(Value) FROM Portfolio')
+            val = cur.fetchall()
         except:
             con.rollback()                                      #in the event of an error rollback database
             print("error in insert operation")
             rows = 'error'
         finally:
-            growth = round(((val-inv)/inv)*100,2)
             con.close()
-            return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+            return render_template('portfolio.html', rows=rows, investment=inv, value=val)
     else:
-        growth = 0
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
-        return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+        cur.execute('SELECT SUM(Investment) FROM Portfolio')
+        inv = cur.fetchall()
+        cur.execute('SELECT SUM(Value) FROM Portfolio')
+        val = cur.fetchall()
+        return render_template('portfolio.html', rows=rows, investment=inv, value=val)
 
 
 
