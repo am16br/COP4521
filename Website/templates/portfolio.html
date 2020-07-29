@@ -113,11 +113,11 @@
                                         <thead>
                                             <td><b>Ticker</b></td>
                                             <td><b>Quantity</b></td>
-                                            <td><b>Cost</b></td>
-                                            <td><b>Price</b></td>
-                                            <td><b>investment</b></td>
-                                            <td><b>Value</b></td>
-                                            <td><b>Growth</b></td>
+                                            <td><b>Cost ($)</b></td>
+                                            <td><b>Price ($)</b></td>
+                                            <td><b>Investment ($)</b></td>
+                                            <td><b>Value ($)</b></td>
+                                            <td><b>Growth (%)</b></td>
                                         </thead>
 
                                         {% for row in rows %}               <!--These are variables that get loaded by the database-->
@@ -143,9 +143,6 @@
                                           </div>
                                           <div class="col-xl-4" style="text-align: center;">
                                               <h4>Current Value: ${{value}}</h4>
-                                          </div>
-                                          <div class="col-xl-4" style="text-align: center;">
-                                              <h4>Growth: {{growth}}%</h4>
                                           </div>
                                       </div>
                                   </form>
