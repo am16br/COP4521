@@ -199,10 +199,10 @@ def portfolio():
             cur.execute('SELECT * FROM Portfolio')  #getting rows for table of positions
             rows = cur.fetchall()
             cur.execute('SELECT SUM(Investment) FROM Portfolio')    #getting sum of investment to show overall initial investment
-            inv = (cur.fetchone()[0])
+            inv = round((cur.fetchone()[0]),2)
             cur.execute('SELECT SUM(Value) FROM Portfolio')         #getting sum of current value to show growth/losses
-            val = (cur.fetchone()[0])
-            growth = ((val-inv)/inv)*100
+            val = round((cur.fetchone()[0]),2)
+            growth = round(((val-inv)/inv)*100,2)
         except:
             con.rollback()                                      #in the event of an error rollback database
             print("error in insert operation")
@@ -214,10 +214,10 @@ def portfolio():
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
         cur.execute('SELECT SUM(Investment) FROM Portfolio')
-        inv = (cur.fetchone()[0])
+        inv = round((cur.fetchone()[0]),2)
         cur.execute('SELECT SUM(Value) FROM Portfolio')
-        val = (cur.fetchone()[0])
-        growth = ((val-inv)/inv)*100
+        val = round((cur.fetchone()[0]),2)
+        growth = round(((val-inv)/inv)*100,2)
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
 
