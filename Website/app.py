@@ -102,6 +102,7 @@ def home():
         rows = 'error'
     finally:
         con.close()             #closing connection
+        os.remove(csvname)
         return render_template('index.html', rows=rows, labels=labels, values=values)   #rendering html page and sending data over
 
 #if index is typed directly it redirects to '/'
@@ -175,6 +176,7 @@ def stock():
             if x['symbol'] == ticker:
                 ticker= x['name']
         con.close()
+        os.remove(csvname)
     return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
 
