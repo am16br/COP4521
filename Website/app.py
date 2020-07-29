@@ -82,7 +82,7 @@ def home():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = int(row[5])
+                Volume = float(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
@@ -142,7 +142,7 @@ def stock():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = int(row[5])
+                Volume = float(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
@@ -222,7 +222,10 @@ def portfolio():
         growth = round(((val-inv)/inv)*100,2)
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
+@app.route('/login', methods=['GET','POST'])
+def login():
 
+    return render_template('login.html')
 
 
 
