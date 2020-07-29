@@ -42,6 +42,7 @@ class Stock(object):
 #Line used to enter python env in windows cmd
 
 app = Flask(__name__, instance_relative_config=True)
+app.config['ENV'] = True
 #Default port is '127.0.0.1:5000'
 
 #takes you to the home page
@@ -54,7 +55,7 @@ def home():
     values = []
 
     if os.path.exists(csvname):
-      os.remove(csvname)
+        os.remove(csvname)
 
     #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
@@ -69,7 +70,6 @@ def home():
 
     #Delete old table, to avoid duplicates
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
-
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
     try:
@@ -91,7 +91,6 @@ def home():
 
                 if iterations < 200:
                     labels.append(Date)
-                    # print('row 6 is ', row[6])
                     values.append(row[6])
                     iterations += 1
         cur.execute('SELECT * FROM Stock')
@@ -101,6 +100,7 @@ def home():
         print("error in insert operation")
         rows = 'error'
     finally:
+        con.close()
         return render_template('index.html', rows=rows, labels=labels, values=values)
 
 #if index is typed directly it redirects to '/'
@@ -110,13 +110,16 @@ def index():
 
 @app.route('/stock', methods=['GET','POST'])
 def stock():
-    ticker = request.form["ticker"]   
+    if request.method == 'POST':
+        ticker = request.form["ticker"]   
+    else:
+        ticker = '^DJI'
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
     values = []
     if os.path.exists(csvname):
-      os.remove(csvname)
+        os.remove(csvname)
     endDate = date.today()
     startDate = date(endDate.year - 1, endDate.month, endDate.day)
 
@@ -129,7 +132,6 @@ def stock():
 
     #Delete old table, to avoid duplicates
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
-
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
     try:
@@ -170,53 +172,66 @@ def stock():
                 min=float(item)
         min=min-(min*0.25)
         max=max+(max*0.25)
-        return render_template('index.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
         con.close()
+    return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
 
 @app.route('/portfolio',methods=['GET','POST'])                                                 #home page
 def portfolio():
-     portfolio = []
-    #  ticker = request.form["ticker"]
-    #  qty = request.form["qty"]
-    #  purprice = request.form["price"]
-    #  portfolio.append(Stock(ticker,qty,purprice))
-     inv = 0
-     val = 0
-     con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
-     con.row_factory = sqlite3.Row
-     cur = con.cursor()                              #setting cursor
-     cur.execute("""DROP TABLE IF EXISTS PORTFOLIO""")
-     cur.execute('CREATE TABLE Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
-     try:
-         for obj in portfolio:
-             ticker = obj.get_tick()
-             qty = obj.get_qty()
-             cost = obj.get_purprice()
-             price = obj.get_price()
-             investment = obj.get_inv()
-             value = obj.get_val()
-             growth = obj.get_growth()
-             cur.execute("""INSERT INTO Portfolio(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
-                         VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
-             con.commit()
-             inv = inv + obj.get_inv()
-             val = val + obj.get_val()
-         growth = val/inv *100.00
-         cur.execute('SELECT * FROM Portfolio')
-         rows = cur.fetchall()
-     except:
-         con.rollback()                                      #in the event of an error rollback database
-         print("error in insert operation")
-         rows = 'error'
-     finally:
-        #  return render_template('portfolio.html')
-         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
-         con.close()
-# @app.route('/tables')                                                 #home page
-# def tables():
-#     return render_template('tables.html')
+    inv = 0
+    val = 0
+    con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()                              #setting cursor
+    cur.execute('CREATE TABLE IF NOT EXISTS Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
+
+    if request.method == 'POST':
+        portfolio = []
+        ticker = request.form["ticker"]
+        qty = request.form["qty"]
+        purprice = request.form["price"]
+        portfolio.append(Stock(ticker,qty,purprice))
+        try:
+            for obj in portfolio:
+                ticker = obj.get_tick()
+                print('ticker is', ticker)
+                qty = obj.get_qty()
+                print('qty is ', qty)
+                cost = obj.get_purprice()
+                print('cost is ', cost)
+                price = obj.get_price()
+                print('price is ', price)
+                investment = 100
+                print('investment is ', investment)
+                value = 100
+                print('value is ', value)
+                growth = 100
+                print('growth is ', growth)
+                cur.execute("""INSERT INTO Portfolio(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
+                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
+                con.commit()
+                # inv = inv + obj.get_inv()
+                # val = val + obj.get_val()
+                inv = 100
+                val = 100
+            cur.execute('SELECT * FROM Portfolio')
+            rows = cur.fetchall()
+        except:
+            con.rollback()                                      #in the event of an error rollback database
+            print("error in insert operation")
+            rows = 'error'
+        finally:
+            con.close()
+            return render_template('portfolio.html', rows=rows, investment=inv, value=val)
+    else:
+        inv = 100
+        val = 100
+        cur.execute('SELECT * FROM Portfolio')
+        rows = cur.fetchall()
+        return render_template('portfolio.html', rows=rows, investment=inv, value=val)
+    
+
 
 #if this were the main module, run the application
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
