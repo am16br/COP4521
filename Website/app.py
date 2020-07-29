@@ -6,13 +6,15 @@
 
 from flask import *         #libraries
 import os
-import datetime as dt       
+import datetime as dt
 from datetime import date
 import pandas as pd
 import pandas_datareader.data as web
 import sqlite3  #importing sqlite3
 import csv
 from yahoo_fin import stock_info as si
+import requests
+
 
 class Stock(object):                        #stock class to create object/calculate values for portfolio
     def __init__(self, tick, qty, purprice):    #initializing with ticker, quantity, and purchase price
@@ -82,7 +84,7 @@ def home():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = float(row[5])
+                Volume = int(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
@@ -125,9 +127,9 @@ def stock():
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
 
-    con = sqlite3.connect(dbname)             
+    con = sqlite3.connect(dbname)
     con.row_factory = sqlite3.Row
-    cur = con.cursor() 
+    cur = con.cursor()
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
 
@@ -142,15 +144,14 @@ def stock():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = float(row[5])
+                Volume = int(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-
                 if iterations % 10 == 0:
                     labels.append(Date)
-                    values.append(round(float(row[6]), 2))
+                    values.append(AdjClose)
                 iterations += 1
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
@@ -168,6 +169,11 @@ def stock():
                 min=float(item)
         min=round(min-(min*0.25))          #adding 0.25% buffer for visually appealing chart
         max=round(max+(max*0.25))
+        url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker)
+        result = requests.get(url).json()
+        for x in result['ResultSet']['Result']:
+            if x['symbol'] == ticker:
+                ticker= x['name']
         con.close()
     return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
@@ -178,7 +184,7 @@ def portfolio():
     val = 0
     con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
-    cur = con.cursor()   
+    cur = con.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
     #creating table to hold portfolio positions
     if request.method == 'POST':    #POST to get info from user (stock ticker, quantity purchases, and purchase price
@@ -222,10 +228,7 @@ def portfolio():
         growth = round(((val-inv)/inv)*100,2)
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
-@app.route('/login', methods=['GET','POST'])
-def login():
 
-    return render_template('login.html')
 
 
 
