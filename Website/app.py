@@ -69,7 +69,7 @@ def home():
 
     #Delete old table, to avoid duplicates, and ensure most recent data
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
-    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
+    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
 
     iterations = 0
     try:
@@ -82,7 +82,7 @@ def home():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = round(float(row[5]))
+                Volume = int(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
@@ -90,7 +90,7 @@ def home():
                 con.commit()        #commiting data to db
                 if iterations % 10 == 0:
                     labels.append(Date)     #adding date to labels list for chart
-                    values.append(row[6])   #adding AdjClose to values list for chart
+                    values.append(round(float(row[6]), 2))   #adding AdjClose to values list for chart
                 iterations += 1
         cur.execute('SELECT * FROM Stock')  #selecting all data for table
         rows = cur.fetchall();
@@ -129,7 +129,7 @@ def stock():
     con.row_factory = sqlite3.Row
     cur = con.cursor() 
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
-    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
+    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
 
     iterations = 0
     try:
@@ -142,16 +142,15 @@ def stock():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = round(float(row[5]))
+                Volume = int(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
 
                 if iterations % 10 == 0:
-                    print(iterations)
                     labels.append(Date)
-                    values.append(row[6])
+                    values.append(round(float(row[6]), 2))
                 iterations += 1
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
@@ -272,7 +271,6 @@ def test():
 
                 if iterations < 200:
                     labels.append(Date)
-                    # print('row 6 is ', row[6])
                     values.append(row[6])
                     iterations += 1
         cur.execute('SELECT * FROM Stock')
