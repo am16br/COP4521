@@ -38,6 +38,30 @@ class Stock(object):
     def get_growth(self):
         return (self.qty*self.get_price())/(self.qty*self.purprice)*100
 
+    
+def movingAvg(time, values, dates):
+    d = []
+    m = []
+    a = len(dates) / time
+    for x in a:
+        total=0
+        for y in time:
+            total = total + values[(x*y)+y]
+            date = dates[(x*y)+y]
+        ma = total / time
+    d.append(date)    
+    m.append(ma)
+    return d, m
+
+def fibonacci(min, max):
+    level1 = max - ((max-min)*0.236)   
+    level2 = max - ((max-min)*0.382) 
+    level3 = max - ((max-min)*0.5) 
+    level4 = max - ((max-min)*0.618) 
+    level5 = max - ((max-min)*0.786)
+    level6 = max - ((max-min)*1) 
+    return level1, level2, level3, level4, level5, level6
+
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
 
