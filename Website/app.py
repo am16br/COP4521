@@ -28,17 +28,18 @@ class Stock(object):
     def get_qty(self):
         return self.qty
     def get_purprice(self):
-        return self.purprice
+        return round(float(self.purprice),2)
     def get_price(self):
-        return si.get_live_price(self.get_tick())    #import current price
+        p = si.get_live_price(self.get_tick())    #import current price
+        return round(float(p),2)
     def get_inv(self):
-        return self.qty*self.purprice
+        return round(float(self.qty)*float(self.purprice),2)
     def get_val(self):
-        return self.qty*self.price   #change to price
+        return round(float(self.qty)*float(self.price),2)   #change to price
     def get_growth(self):
-        return (self.qty*self.get_price())/(self.qty*self.purprice)*100
+        return round((float(self.qty)*float(self.price)/(float(self.qty)*float(self.purprice))*100),2)
 
-    
+
 def movingAvg(time, values, dates):
     d = []
     m = []
@@ -49,17 +50,17 @@ def movingAvg(time, values, dates):
             total = total + values[(x*y)+y]
             date = dates[(x*y)+y]
         ma = total / time
-    d.append(date)    
+    d.append(date)
     m.append(ma)
     return d, m
 
 def fibonacci(min, max):
-    level1 = max - ((max-min)*0.236)   
-    level2 = max - ((max-min)*0.382) 
-    level3 = max - ((max-min)*0.5) 
-    level4 = max - ((max-min)*0.618) 
+    level1 = max - ((max-min)*0.236)
+    level2 = max - ((max-min)*0.382)
+    level3 = max - ((max-min)*0.5)
+    level4 = max - ((max-min)*0.618)
     level5 = max - ((max-min)*0.786)
-    level6 = max - ((max-min)*1) 
+    level6 = max - ((max-min)*1)
     return level1, level2, level3, level4, level5, level6
 
 #python-env\Scripts\activate.bat
@@ -87,7 +88,7 @@ def home():
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
- 
+
     con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
     cur = con.cursor()                              #setting cursor
@@ -133,7 +134,7 @@ def index():
 @app.route('/stock', methods=['GET','POST'])
 def stock():
     if request.method == 'POST':
-        ticker = request.form["ticker"]   
+        ticker = request.form["ticker"]
     else:
         ticker = '^DJI'
     csvname = (ticker + '.csv')
@@ -216,26 +217,17 @@ def portfolio():
         try:
             for obj in portfolio:
                 ticker = obj.get_tick()
-                print('ticker is', ticker)
                 qty = obj.get_qty()
-                print('qty is ', qty)
-                cost = obj.get_purprice()
-                print('cost is ', cost)
-                price = obj.get_price()
-                print('price is ', price)
-                investment = 100
-                print('investment is ', investment)
-                value = 100
-                print('value is ', value)
-                growth = 100
-                print('growth is ', growth)
+                cost = '$' + str(obj.get_purprice())
+                price = '$' + str(obj.get_price())
+                investment = '$' + str(obj.get_inv())
+                value = '$' + str(obj.get_val())
+                growth = str(obj.get_growth()) + '%'
                 cur.execute("""INSERT INTO Portfolio(Ticker, Quantity, Cost, Price, Investment, Value, Growth)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
                 con.commit()
-                # inv = inv + obj.get_inv()
-                # val = val + obj.get_val()
-                inv = 100
-                val = 100
+                inv = inv + obj.get_inv()
+                val = val + obj.get_val()
             cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
         except:
@@ -243,15 +235,17 @@ def portfolio():
             print("error in insert operation")
             rows = 'error'
         finally:
+            growth = (val/inv)*100
             con.close()
-            return render_template('portfolio.html', rows=rows, investment=inv, value=val)
+            return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
     else:
         inv = 100
         val = 100
+        growth = (val/inv)*100
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
-        return render_template('portfolio.html', rows=rows, investment=inv, value=val)
-    
+        return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+
 
 
 
@@ -259,7 +253,7 @@ def portfolio():
 @app.route('/test', methods=['GET','POST'])
 def test():
     if request.method == 'POST':
-        ticker = request.form["ticker"]   
+        ticker = request.form["ticker"]
     else:
         ticker = '^DJI'
     csvname = (ticker + '.csv')
