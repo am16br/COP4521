@@ -83,7 +83,7 @@ def home():
 
     #years = int(input("Enter number of years to check stock data: "))
     endDate = date.today()
-    startDate = date(endDate.year - 1, endDate.month, endDate.day)
+    startDate = date(endDate.year, endDate.month - 6, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -103,12 +103,12 @@ def home():
             for row in csv_reader:
                 iterations = 0
                 Date = row[0]
-                High = row[1]
-                Low = row[2]
-                Open = row[3]
-                Close = row[4]
-                Volume = row[5]
-                AdjClose = row[6]
+                High = round(float(row[1]), 2)
+                Low = round(float(row[2]), 2)
+                Open = round(float(row[3]), 2)
+                Close = round(float(row[4]), 2)
+                Volume = round(float(row[5]))
+                AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
@@ -252,6 +252,81 @@ def portfolio():
         rows = cur.fetchall()
         return render_template('portfolio.html', rows=rows, investment=inv, value=val)
     
+
+
+
+
+@app.route('/test', methods=['GET','POST'])
+def test():
+    if request.method == 'POST':
+        ticker = request.form["ticker"]   
+    else:
+        ticker = '^DJI'
+    csvname = (ticker + '.csv')
+    dbname = ('Projecto.db')
+    labels = []
+    values = []
+    if os.path.exists(csvname):
+        os.remove(csvname)
+    endDate = date.today()
+    startDate = date(endDate.year - 1, endDate.month, endDate.day)
+
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    df.to_csv(csvname)
+
+    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()                              #setting cursor
+
+    #Delete old table, to avoid duplicates
+    cur.execute("""DROP TABLE IF EXISTS STOCK""")
+    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
+
+    try:
+        with open(csvname) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
+            for row in csv_reader:
+                iterations = 0
+                Date = row[0]
+                High = row[1]
+                Low = row[2]
+                Open = row[3]
+                Close = row[4]
+                Volume = row[5]
+                AdjClose = row[6]
+                cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
+                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
+                con.commit()
+
+                if iterations < 200:
+                    labels.append(Date)
+                    # print('row 6 is ', row[6])
+                    values.append(row[6])
+                    iterations += 1
+        cur.execute('SELECT * FROM Stock')
+        rows = cur.fetchall();
+    except:
+        con.rollback()                                      #in the event of an error rollback database
+        print("error in insert operation")
+        rows = 'error'
+    finally:
+        min=float(values[0])
+        max=float(values[0])
+        for item in values:
+            if float(item)>max:
+                max=float(item)
+            if float(item)<min:
+                min=float(item)
+        min=min-(min*0.25)
+        max=max+(max*0.25)
+        con.close()
+    return render_template('test.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+
+
+
+
+
 
 
 #if this were the main module, run the application
