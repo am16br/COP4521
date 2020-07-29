@@ -49,61 +49,68 @@ app.config['ENV'] = True
 #Default port is '127.0.0.1:5000'
 
 #takes you to the home page
-@app.route('/')                                                 #home page
+@app.route('/', methods=['GET','POST'])                                                 #home page
 def home():
-    ticker = '^GSPC'                        #for S&P500
-    csvname = (ticker + '.csv')
-    dbname = ('Projecto.db')
-    labels = []
-    values = []
+    if request.method == 'POST':
+        week = request.form["week"]
+        print('WEEK IS', week)
+        month = request.form["month"]
+        month3 = request.form["month3"]
+        print(month)
+    else:
+        ticker = '^GSPC'                        #for S&P500
+        csvname = (ticker + '.csv')
+        dbname = ('Projecto.db')
+        labels = []
+        values = []
 
-    if os.path.exists(csvname):             #removing previous csv to pull most recent data
-        os.remove(csvname)
-    endDate = date.today()                  #fetching todays date
-    startDate = date(endDate.year - 5, endDate.month, endDate.day)    #getting date 5 years in the past
+        if os.path.exists(csvname):             #removing previous csv to pull most recent data
+            os.remove(csvname)
+        endDate = date.today()                  #fetching todays date
+        startDate = date(endDate.year - 5, endDate.month, endDate.day)    #getting date 5 years in the past
 
-    df = web.DataReader(ticker, 'yahoo', startDate, endDate)        #scraping stock data dating back 5 years
-    df.to_csv(csvname)
+        df = web.DataReader(ticker, 'yahoo', startDate, endDate)        #scraping stock data dating back 5 years
+        df.to_csv(csvname)
 
-    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
-    con.row_factory = sqlite3.Row
-    cur = con.cursor()                              #setting cursor
+        con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()                              #setting cursor
 
-    #Delete old table, to avoid duplicates, and ensure most recent data
-    cur.execute("""DROP TABLE IF EXISTS STOCK""")
-    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
+        #Delete old table, to avoid duplicates, and ensure most recent data
+        cur.execute("""DROP TABLE IF EXISTS STOCK""")
+        cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
 
-    iterations = 0
-    try:
-        with open(csvname) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            next(csv_reader)
-            for row in csv_reader:  #looping through csv
-                Date = row[0]                   #getting data from row/column to add to database
-                High = round(float(row[1]), 2)  #rounding float value to 2 decimal places
-                Low = round(float(row[2]), 2)
-                Open = round(float(row[3]), 2)
-                Close = round(float(row[4]), 2)
-                Volume = int(row[5])
-                AdjClose = round(float(row[6]), 2)
-                cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
-                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
-                #inserting data, row by row, into database
-                con.commit()        #commiting data to db
-                if iterations % 10 == 0:
-                    labels.append(Date)     #adding date to labels list for chart
-                    values.append(round(float(row[6]), 2))   #adding AdjClose to values list for chart
-                iterations += 1
-        cur.execute('SELECT * FROM Stock')  #selecting all data for table
-        rows = cur.fetchall();
-    except:
-        con.rollback()                                      #in the event of an error rollback database
-        print("error in insert operation")
-        rows = 'error'
-    finally:
-        con.close()             #closing connection
-        os.remove(csvname)
-        return render_template('index.html', rows=rows, labels=labels, values=values)   #rendering html page and sending data over
+        iterations = 0
+        try:
+            with open(csvname) as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                next(csv_reader)
+                for row in csv_reader:  #looping through csv
+                    Date = row[0]                   #getting data from row/column to add to database
+                    High = round(float(row[1]), 2)  #rounding float value to 2 decimal places
+                    Low = round(float(row[2]), 2)
+                    Open = round(float(row[3]), 2)
+                    Close = round(float(row[4]), 2)
+                    Volume = int(row[5])
+                    AdjClose = round(float(row[6]), 2)
+                    cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
+                                VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
+                    #inserting data, row by row, into database
+                    con.commit()        #commiting data to db
+                    if iterations % 10 == 0:
+                        labels.append(Date)     #adding date to labels list for chart
+                        values.append(round(float(row[6]), 2))   #adding AdjClose to values list for chart
+                    iterations += 1
+            cur.execute('SELECT * FROM Stock')  #selecting all data for table
+            rows = cur.fetchall();
+        except:
+            con.rollback()                                      #in the event of an error rollback database
+            print("error in insert operation")
+            rows = 'error'
+        finally:
+            con.close()             #closing connection
+            os.remove(csvname)
+            return render_template('index.html', rows=rows, labels=labels, values=values)   #rendering html page and sending data over
 
 #if index is typed directly it redirects to '/'
 @app.route('/index', methods=['GET','POST'])                           #takes you to the route
@@ -145,7 +152,7 @@ def stock():
                 Low = round(float(row[2]), 2)
                 Open = round(float(row[3]), 2)
                 Close = round(float(row[4]), 2)
-                Volume = int(row[5])
+                Volume = float(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
