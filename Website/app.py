@@ -71,6 +71,7 @@ def home():
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
+    iterations = 0
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -85,11 +86,12 @@ def home():
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
-                    #inserting data, row by row, into database
+                #inserting data, row by row, into database
                 con.commit()        #commiting data to db
-
-                labels.append(Date)     #adding date to labels list for chart
-                values.append(row[6])   #adding AdjClose to values list for chart
+                if iterations % 10 == 0:
+                    labels.append(Date)     #adding date to labels list for chart
+                    values.append(row[6])   #adding AdjClose to values list for chart
+                iterations += 1
         cur.execute('SELECT * FROM Stock')  #selecting all data for table
         rows = cur.fetchall();
     except:
@@ -129,12 +131,12 @@ def stock():
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
 
+    iterations = 0
     try:
         with open(csvname) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             next(csv_reader)
             for row in csv_reader:
-                iterations = 0
                 Date = row[0]
                 High = round(float(row[1]), 2)
                 Low = round(float(row[2]), 2)
@@ -146,10 +148,11 @@ def stock():
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
 
-                if iterations < 200:
+                if iterations % 10 == 0:
+                    print(iterations)
                     labels.append(Date)
                     values.append(row[6])
-                    iterations += 1
+                iterations += 1
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
@@ -164,8 +167,8 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
-        min=min-(min*0.25)          #adding 0.25% buffer for visually appealing chart
-        max=max+(max*0.25)
+        min=round(min-(min*0.25))          #adding 0.25% buffer for visually appealing chart
+        max=round(max+(max*0.25))
         con.close()
     return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
