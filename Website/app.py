@@ -170,7 +170,7 @@ def stock():
                 min=float(item)
         min=round(min-(min*0.25))          #adding 0.25% buffer for visually appealing chart
         max=round(max+(max*0.25))
-        url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker)
+        url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
         result = requests.get(url).json()
         for x in result['ResultSet']['Result']:
             if x['symbol'] == ticker:
