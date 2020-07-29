@@ -89,10 +89,8 @@ def home():
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
 
-                if iterations < 200:
-                    labels.append(Date)
-                    values.append(row[6])
-                    iterations += 1
+                labels.append(Date)
+                values.append(row[6])
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
