@@ -206,7 +206,12 @@ def portfolio():
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (ticker, qty, cost, price, investment, value, growth))
             #inserting data to db
             con.commit()    #commiting data to db
-            cur.execute('SELECT * FROM Portfolio')  #getting rows for table of positions
+            cur.execute('SELECT * FROM Portfolio')
+            for row in cur:
+                ticker = row[0]
+                price = si.get_live_price(ticker)
+                cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
+            cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
             cur.execute('SELECT SUM(Investment) FROM Portfolio')    #getting sum of investment to show overall initial investment
             inv = round((cur.fetchone()[0]),2)
@@ -222,12 +227,22 @@ def portfolio():
             return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)  #rendering page/sending data
     else:                                       #if page just loaded, nothing added to db
         cur.execute('SELECT * FROM Portfolio')
+        for row in cur:
+            ticker = row[0]
+            price = si.get_live_price(ticker)
+            cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
+        cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
-        cur.execute('SELECT SUM(Investment) FROM Portfolio')
-        inv = round((cur.fetchone()[0]),2)
-        cur.execute('SELECT SUM(Value) FROM Portfolio')
-        val = round((cur.fetchone()[0]),2)
-        growth = round(((val-inv)/inv)*100,2)
+        if len(rows) == 0:
+            inv=0
+            val=0
+            growth = 0
+        else:
+            cur.execute('SELECT SUM(Investment) FROM Portfolio')
+            inv = round((cur.fetchone()[0]),2)
+            cur.execute('SELECT SUM(Value) FROM Portfolio')
+            val = round((cur.fetchone()[0]),2)
+            growth = round(((val-inv)/inv)*100,2)
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
 
