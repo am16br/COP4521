@@ -136,12 +136,12 @@ def stock():
             for row in csv_reader:
                 iterations = 0
                 Date = row[0]
-                High = row[1]
-                Low = row[2]
-                Open = row[3]
-                Close = row[4]
-                Volume = row[5]
-                AdjClose = row[6]
+                High = round(float(row[1]), 2)
+                Low = round(float(row[2]), 2)
+                Open = round(float(row[3]), 2)
+                Close = round(float(row[4]), 2)
+                Volume = round(float(row[5]))
+                AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
