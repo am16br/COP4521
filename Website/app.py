@@ -210,6 +210,7 @@ def portfolio():
             for row in cur:
                 ticker = row[0]
                 price = si.get_live_price(ticker)
+                price = round(price,2)
                 cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
             cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
@@ -230,6 +231,7 @@ def portfolio():
         for row in cur:
             ticker = row[0]
             price = si.get_live_price(ticker)
+            price = round(price,2)
             cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
