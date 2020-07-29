@@ -37,7 +37,7 @@ class Stock(object):
     def get_val(self):
         return round(float(self.qty)*float(self.price),2)   #change to price
     def get_growth(self):
-        return round((float(self.qty)*float(self.price)/(float(self.qty)*float(self.purprice))*100),2)
+        return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)
 
 
 def movingAvg(time, values, dates):
@@ -235,13 +235,11 @@ def portfolio():
             print("error in insert operation")
             rows = 'error'
         finally:
-            growth = (val/inv)*100
+            growth = round(((val-inv)/inv)*100,2)
             con.close()
             return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
     else:
-        inv = 100
-        val = 100
-        growth = (val/inv)*100
+        growth = 0
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
