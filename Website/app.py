@@ -188,8 +188,8 @@ def stock():
         else:
             startDate = date(endDate.year - 5, endDate.month, endDate.day)
             mod = 10
-            short = 50
-            long = 100
+            short = 100
+            long = 200
 
     else:
         startDate = date(endDate.year, endDate.month, endDate.day - 7)
