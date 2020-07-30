@@ -255,7 +255,7 @@ def stock():
         #end of yahoo standard way to get long name
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, shortma=shortma, longma=longma, min=min, max=max)
+    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, shortma=shortma, longma=longma, short=short, long=long, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
