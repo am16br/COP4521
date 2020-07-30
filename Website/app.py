@@ -46,13 +46,17 @@ def movingAvg(time, values):
     length = int(len(values)/time)
     for i in range(length):
         total = 0
+        a = values[i]
         for x in range(time):
             total = total + values[(x*i)+x]
+            b = values[(x*i)+x]
         total = round(float(total/time),2)
+        diff = b - a
+        slope = diff / time
         for x in range(time):
-            v.append(total)
+            intermed = (slope * x)+total
+            v.append(intermed)
     return v
-
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
 
