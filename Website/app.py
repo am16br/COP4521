@@ -46,7 +46,7 @@ def movingAvg(time, values):
     length = int(len(values)/time)
     for i in range(length):
         total = 0
-        for x in range(10):
+        for x in range(time):
             total = total + values[(x*i)+x]
         total = round(float(total/time),2)
         for x in range(time):

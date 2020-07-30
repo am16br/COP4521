@@ -209,7 +209,7 @@
                                                     pointRadius: 4,
                                                     pointHitRadius: 10,
                                                     // notice the gap in the data and the spanGaps: false
-                                                    data: [{% for item in ma %}
+                                                    data: [{% for item in longma %}
                                                                 {{item}},
                                                             {% endfor %}],
                                                     spanGaps: false,
@@ -233,7 +233,9 @@
                                                     pointRadius: 4,
                                                     pointHitRadius: 10,
                                                     // notice the gap in the data and the spanGaps: false
-                                                    data: [300, 200, 100, 400],
+                                                    data: [{% for item in shortma %}
+                                                                {{item}},
+                                                            {% endfor %}],
                                                     spanGaps: false,
                                                     }
                                                 ]
