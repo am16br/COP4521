@@ -41,6 +41,20 @@ class Stock(object):                        #stock class to create object/calcul
     def get_growth(self):
         return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)   #calculating growth
 
+def movingAvg(time, dates, values):
+    d = []
+    v = []
+    length = int(len(dates)/time)
+    for i in range(length):
+        total = 0
+        for x in range(time):
+            total = total + values[(x*i)+x]
+            day = dates[(x*i)+x]
+        total = round(float(total/time),2)
+        d.append(day)
+        v.append(total)
+    return d, v
+
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
 
@@ -171,7 +185,7 @@ def stock():
     if os.path.exists(csvname):
         os.remove(csvname)
     #using pandas datareader to pull stock's data from yahoo from start to end date
-    df = web.DataReader(ticker, 'yahoo', startDate, endDate)    
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
     #same as for homepage
     con = sqlite3.connect(dbname)
@@ -196,7 +210,7 @@ def stock():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-                if iterations % mod == 0:
+                if iterations % 1 == 0:
                     labels.append(Date)
                     values.append(AdjClose)
                 iterations += 1
@@ -213,6 +227,9 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
+        dates, ma = movingAvg(50, labels, values)
+        print (dates)
+        print (ma)
         default = ticker    #setting default value for request form
         #yahoo finance standard way to get long name from ticker
         url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
@@ -223,7 +240,7 @@ def stock():
         #end of yahoo standard way to get long name
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, dates=dates, ma=ma, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
