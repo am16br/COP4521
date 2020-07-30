@@ -54,7 +54,7 @@ def movingAvg(time, values):
         diff = b - a
         slope = diff / time
         for x in range(time):
-            intermed = round((slope * x)+total,2)
+            intermed = round((slope * (x+1))+total,2)
             v.append(intermed)
     return v
 #python-env\Scripts\activate.bat
