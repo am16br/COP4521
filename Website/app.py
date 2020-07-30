@@ -229,7 +229,6 @@ def stock():
                 if iterations % 1 == 0:
                     labels.append(Date)
                     values.append(AdjClose)
-                iterations += 1
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
@@ -238,11 +237,16 @@ def stock():
     finally:
         min=float(values[0])        #calculating min and max by setting to first adjClose value
         max=float(values[0])
+        plot_val = []
+        plot_lab = []
+
+        iterations = 0
         for item in values:         #looping through all values
             if float(item)>max:     #changing min and max if value is less than or greater than respectively
                 max=float(item)
             if float(item)<min:
                 min=float(item)
+
         shortma = movingAvg(short, values)
         longma = movingAvg(long, values)
         default = ticker    #setting default value for request form

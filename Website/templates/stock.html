@@ -96,7 +96,7 @@
                                                             "{{item}}",
                                                             {% endfor %}],
                                                 datasets: [{
-                                                    label: "{{ticker}} Price: $",
+                                                    label: "{{ticker}} Price($)",
                                                     lineTension: 0.3,
                                                     backgroundColor: "rgba(2,117,216,0.2)",
                                                     borderColor: "rgba(2,117,216,1)",
@@ -112,9 +112,10 @@
                                                             {% endfor %}],
                                                     spanGaps: true,
                                                     }, {
-                                                    label: "{{short}} Day Moving Average: $",
+                                                    label: "Short Moving Day Average($)",
                                                     lineTension: 0.3,
-                                                    backgroundColor: "rgba(224,224,224,0.8)",
+                                                    fill: false,
+                                                    // backgroundColor: "rgba(224,224,224,0.8)",
                                                     borderColor: "grey",
                                                     pointRadius: 5,
                                                     pointBackgroundColor: "rgba(102,102,102,0.8)",
@@ -128,8 +129,9 @@
                                                             {% endfor %}],
                                                     spanGaps: false,
                                                     }, {
-                                                    label: "{{long}} Day Moving Average: $",
+                                                    label: "Long Moving Day Average($)",
                                                     lineTension: 0.3,
+                                                    fill: false,
                                                     backgroundColor: "pink",
                                                     borderColor: "red",
                                                     pointRadius: 5,
