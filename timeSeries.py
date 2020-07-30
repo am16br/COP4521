@@ -17,20 +17,23 @@ class timeseries:
 
   def run(self,stock,useFS = False):
 
-    start = datetime.datetime(2014,1,1)
+    start = datetime.datetime(2017,1,1)
     end = datetime.datetime.now()
-    df = pdr.DataReader(stock,'morningstar',start,end)
-    df.set_index("Date", inplace=True)
-    df = df.drop("Symbol", axis=1)
+    df = pdr.DataReader(stock,'yahoo',start,end)
+    df = df.reset_index()
+    print(df)
+    # df.reset_index(inplace=True)
+    # df.set_index('Date', inplace=True)
+    # df = df.drop('Symbol', axis=1)
     d=pd.DataFrame()
     d['y'] = df['High']
-    d['ds'] = pd.to_datetime(df['date'])
+    d['DS'] = pd.to_datetime(df['Date'])
 
 
     p = prophet.Prophet()
 
     p.fit(d)
-    future = prophet.make_future_dataframe(periods=30,freq='D')
-    forecast = prophet.predict(future)
+    future = p.make_future_dataframe(periods=30,freq='D')
+    forecast = p.predict(future)
     return forecast
 
