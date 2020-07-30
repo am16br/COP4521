@@ -51,33 +51,36 @@ app.config['ENV'] = True
 #takes you to the home page
 @app.route('/', methods=['GET','POST'])                                                 #home page
 def home():
+    endDate = date.today()                  #fetching todays date
     if request.method == 'POST':
-        timeframe = request.form['timeframe']
+        if request.form["1"] == "1 Week":
+            startDate = date(endDate.year, endDate.month, endDate.day - 7)
+            mod = 1
+        elif request.form["1"] == "1 Month":
+            startDate = date(endDate.year, endDate.month - 1, endDate.day)
+            mod = 2
+        elif request.form["1"] == "3 Months":
+            startDate = date(endDate.year, endDate.month - 3, endDate.day)
+            mod = 2
+        elif request.form["1"] == "6 Months":
+            startDate = date(endDate.year, endDate.month - 6, endDate.day)
+            mod = 2
+        elif request.form["1"] == "1 Year":
+            startDate = date(endDate.year - 1, endDate.month, endDate.day)
+            mod = 5
+        elif request.form["1"] == "5 Years":
+            startDate = date(endDate.year - 5, endDate.month, endDate.day)
+            mod = 10
     else:
-        timeframe = 5
+        startDate = date(endDate.year, endDate.month, endDate.day - 7)    #getting date 5 years in the past
+        mod = 1
     ticker = '^GSPC'                        #for S&P500
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
     values = []
-
     if os.path.exists(csvname):             #removing previous csv to pull most recent data
         os.remove(csvname)
-    endDate = date.today()                  #fetching todays date
-
-    if timeframe == 0:
-        startDate = date(endDate.year , endDate.month, endDate.day)    #getting date 5 years in the past
-    elif timeframe == 1:
-        startDate = date(endDate.year , endDate.month-1, endDate.day)    #getting date 5 years in the past
-    elif timeframe == 2:
-        startDate = date(endDate.year , endDate.month-3, endDate.day)    #getting date 5 years in the past
-    elif timeframe == 3:
-        startDate = date(endDate.year , endDate.month-6, endDate.day)    #getting date 5 years in the past
-    elif timeframe == 4:
-        startDate = date(endDate.year-1, endDate.month, endDate.day)    #getting date 5 years in the past
-    else:
-        startDate = date(endDate.year-5, endDate.month, endDate.day)    #getting date 5 years in the past
-
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)        #scraping stock data dating back 5 years
     df.to_csv(csvname)
@@ -86,7 +89,7 @@ def home():
     con.row_factory = sqlite3.Row
     cur = con.cursor()                              #setting cursor
 
-    #Delete old table, to avoid duplicates, and ensure most recent data
+        #Delete old table, to avoid duplicates, and ensure most recent data
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
 
@@ -104,10 +107,10 @@ def home():
                 Volume = int(row[5])
                 AdjClose = round(float(row[6]), 2)
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
-                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
-                #inserting data, row by row, into database
+                                VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
+                    #inserting data, row by row, into database
                 con.commit()        #commiting data to db
-                if iterations % 10 == 0:
+                if iterations % mod == 0:
                     labels.append(Date)     #adding date to labels list for chart
                     values.append(round(float(row[6]), 2))   #adding AdjClose to values list for chart
                 iterations += 1
@@ -115,7 +118,8 @@ def home():
         rows = cur.fetchall();
     except:
         con.rollback()                                      #in the event of an error rollback database
-        return render_template('401.html')
+        print("error in insert operation")
+        rows = 'error'
     finally:
         con.close()             #closing connection
         os.remove(csvname)
@@ -128,18 +132,38 @@ def index():
 
 @app.route('/stock', methods=['GET','POST'])    #similar to above
 def stock():
-    if request.method == 'POST':            #getting ticker inputted by user in search bar
+    ticker = '^DJI'
+    endDate = date.today()                  #fetching todays date
+    if request.method == 'POST':
         ticker = request.form["ticker"]
+        if request.form["1"] == "1 Week":
+            startDate = date(endDate.year, endDate.month, endDate.day - 7)
+            mod = 1
+        elif request.form["1"] == "1 Month":
+            startDate = date(endDate.year, endDate.month - 1, endDate.day)
+            mod = 2
+        elif request.form["1"] == "3 Months":
+            startDate = date(endDate.year, endDate.month - 3, endDate.day)
+            mod = 2
+        elif request.form["1"] == "6 Months":
+            startDate = date(endDate.year, endDate.month - 6, endDate.day)
+            mod = 2
+        elif request.form["1"] == "1 Year":
+            startDate = date(endDate.year - 1, endDate.month, endDate.day)
+            mod = 5
+        elif request.form["1"] == "5 Years":
+            startDate = date(endDate.year - 5, endDate.month, endDate.day)
+            mod = 10
+
     else:
-        ticker = '^DJI'                     #defaulting to dow jones
+        startDate = date(endDate.year, endDate.month, endDate.day - 7)
+        mod = 1
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
     values = []
     if os.path.exists(csvname):
         os.remove(csvname)
-    endDate = date.today()
-    startDate = date(endDate.year - 5, endDate.month, endDate.day)
 
     df = web.DataReader(ticker, 'yahoo', startDate, endDate)
     df.to_csv(csvname)
@@ -166,7 +190,7 @@ def stock():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-                if iterations % 10 == 0:
+                if iterations % mod == 0:
                     labels.append(Date)
                     values.append(AdjClose)
                 iterations += 1
@@ -264,9 +288,74 @@ def portfolio():
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
 
-@app.route('/login',methods=['GET','POST'])   #page to display user's portfolio
-def login():
-    return render_template('login.html')
+
+
+
+@app.route('/test', methods=['GET','POST'])
+def test():
+    if request.method == 'POST':
+        ticker = request.form["ticker"]
+    else:
+        ticker = '^DJI'
+    csvname = (ticker + '.csv')
+    dbname = ('Projecto.db')
+    labels = []
+    values = []
+    if os.path.exists(csvname):
+        os.remove(csvname)
+    endDate = date.today()
+    startDate = date(endDate.year - 1, endDate.month, endDate.day)
+
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    df.to_csv(csvname)
+
+    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()                              #setting cursor
+
+    #Delete old table, to avoid duplicates
+    cur.execute("""DROP TABLE IF EXISTS STOCK""")
+    cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume REAL, AdjClose REAL);')
+
+    try:
+        with open(csvname) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)
+            for row in csv_reader:
+                iterations = 0
+                Date = row[0]
+                High = row[1]
+                Low = row[2]
+                Open = row[3]
+                Close = row[4]
+                Volume = row[5]
+                AdjClose = row[6]
+                cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
+                            VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
+                con.commit()
+
+                if iterations < 200:
+                    labels.append(Date)
+                    values.append(row[6])
+                    iterations += 1
+        cur.execute('SELECT * FROM Stock')
+        rows = cur.fetchall();
+    except:
+        con.rollback()                                      #in the event of an error rollback database
+        print("error in insert operation")
+        rows = 'error'
+    finally:
+        min=float(values[0])
+        max=float(values[0])
+        for item in values:
+            if float(item)>max:
+                max=float(item)
+            if float(item)<min:
+                min=float(item)
+        min=min-(min*0.25)
+        max=max+(max*0.25)
+        con.close()
+    return render_template('test.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
 
 #if this were the main module, run the application
