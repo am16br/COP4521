@@ -157,7 +157,7 @@ def stock():
     ticker = '^DJI'
     endDate = date.today()                  #fetching todays date
     short = 1
-    long = 7
+    long = 3
     if request.method == 'POST':
         ticker = request.form["ticker"]     #getting user entered stock ticker
         if request.form["1"] == "1 Week":   #getting timeframe to pull data from
