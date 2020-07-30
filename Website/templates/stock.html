@@ -76,15 +76,6 @@
                               <p class="lead">Go ahead and search a stock.... you know you want to</p>
                             </div>
                           </div>
-                            <form action="{{url_for('stock')}}" method='post'>    <!--form sends data to app.py to be added to db-->
-                                <div class="row">
-                                    <div class="col-xl-12" style="margin: 20px;">
-                                        <h5>Enter the Ticker Symbol:</h5>
-                                        <input type="text" id="ticker" name="ticker">
-                                        <input type="submit" value="Submit">
-                                    </div>
-                                </div>
-                            </form>
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         <i class="fas fa-chart-area mr-1"></i>
@@ -154,26 +145,20 @@
                                             }
                                         </script>
                                         <form action="{{url_for('stock')}}" method='post'>    <!--form sends data to app.py to be added to db-->
+                                            <h5>Enter the Ticker Symbol:</h5>
+                                            <input type="text" id="ticker" name="ticker" placeholder="Example: TSLA" value="MSFT">
                                             <div class="row" style="margin-bottom: 20px;">
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="1 Week">
-                                                </div>
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="1 Month">
-                                                </div>
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="3 Months">
-                                                </div>
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="6 Months">
-                                                </div>
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="1 Year">
-                                                </div>
-                                                <div class="col" style="text-align: center;">
-                                                    <input type="submit" name="1" value="5 Years">
-                                                </div>
+                                                <h5>Choose a Time Frame:</h5>
+                                                <select name="1" id="timeframe">
+                                                <option value="1 Week">1 Week</option>
+                                                <option value="1 Month">1 Month</option>
+                                                <option value="3 Months">3 Months</option>
+                                                <option value="6 Months">6 Months</option>
+                                                <option value="1 Year">1 Year</option>
+                                                <option value="5 Years">5 Years</option>
+                                                </select>
                                             </div>
+                                            <input type="submit" value="Submit" name="1">
                                         </form>
                                 </div>
                         <div class="card mb-4">
