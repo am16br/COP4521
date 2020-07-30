@@ -1,6 +1,6 @@
 
 
-import prophet
+import fbprophet as prophet
 import numpy as np
 import pandas as pd
 import pandas_datareader.data as pdr
