@@ -213,6 +213,7 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
+        default = ticker
         url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
         result = requests.get(url).json()
         for x in result['ResultSet']['Result']:
@@ -220,7 +221,7 @@ def stock():
                 ticker= x['name']
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
