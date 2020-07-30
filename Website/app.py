@@ -118,12 +118,18 @@ def home():
         rows = cur.fetchall();
     except:
         con.rollback()                                      #in the event of an error rollback database
-        print("error in insert operation")
-        rows = 'error'
+        return render_template('500.html')
     finally:
+        min=float(values[0])        #calculating min and max by setting to first adjClose value
+        max=float(values[0])
+        for item in values:         #looping through all values
+            if float(item)>max:     #changing min and max if value is less than or greater than respectively
+                max=float(item)
+            if float(item)<min:
+                min=float(item)
         con.close()             #closing connection
         os.remove(csvname)
-        return render_template('index.html', rows=rows, labels=labels, values=values)   #rendering html page and sending data over
+        return render_template('index.html', rows=rows, labels=labels, values=values, min=min, max=max)   #rendering html page and sending data over
 
 #if index is typed directly it redirects to '/'
 @app.route('/index', methods=['GET','POST'])                           #takes you to the route
@@ -198,8 +204,7 @@ def stock():
         rows = cur.fetchall();
     except:
         con.rollback()                                      #in the event of an error rollback database
-        print("error in insert operation")
-        rows = 'error'
+        return render_template('500.html')
     finally:
         min=float(values[0])        #calculating min and max by setting to first adjClose value
         max=float(values[0])
@@ -259,8 +264,7 @@ def portfolio():
             growth = round(((val-inv)/inv)*100,2)
         except:
             con.rollback()                                      #in the event of an error rollback database
-            print("error in insert operation")
-            rows = 'error'
+            return render_template('500.html')
         finally:
             con.close()
             return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)  #rendering page/sending data
