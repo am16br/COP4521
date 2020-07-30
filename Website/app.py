@@ -41,22 +41,17 @@ class Stock(object):                        #stock class to create object/calcul
     def get_growth(self):
         return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)   #calculating growth
 
-def movingAvg(time, dates, values):
-    d = []
+def movingAvg(time, values):
     v = []
-    length = int(len(dates)/10)
+    length = int(len(values)/time)
     for i in range(length):
         total = 0
         for x in range(10):
             total = total + values[(x*i)+x]
-            day = dates[(x*i)+x]
-        total = round(float(total/10),2)
-        d.append(day)
-        v.append(total)
-
-        for x in range(9):
+        total = round(float(total/time),2)
+        for x in range(time):
             v.append(total)
-    return d, v
+    return v
 
 #python-env\Scripts\activate.bat
 #Line used to enter python env in windows cmd
@@ -162,21 +157,33 @@ def stock():
         if request.form["1"] == "1 Week":   #getting timeframe to pull data from
             startDate = date(endDate.year, endDate.month, endDate.day - 7)
             mod = 1
+            short = 1
+            long =7
         elif request.form["1"] == "1 Month":
             startDate = date(endDate.year, endDate.month - 1, endDate.day)
             mod = 2
+            short = 5
+            long = 10
         elif request.form["1"] == "3 Months":
             startDate = date(endDate.year, endDate.month - 3, endDate.day)
             mod = 2
+            short = 10
+            long = 20
         elif request.form["1"] == "6 Months":
             startDate = date(endDate.year, endDate.month - 6, endDate.day)
             mod = 2
+            short = 10
+            long = 30
         elif request.form["1"] == "1 Year":
             startDate = date(endDate.year - 1, endDate.month, endDate.day)
             mod = 5
+            short = 20
+            long = 50
         else:
             startDate = date(endDate.year - 5, endDate.month, endDate.day)
             mod = 10
+            short = 50
+            long = 100
 
     else:
         startDate = date(endDate.year, endDate.month, endDate.day - 7)
@@ -230,9 +237,8 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
-        dates, ma = movingAvg(50, labels, values)
-        print (dates)
-        print (ma)
+        shortma = movingAvg(short, values)
+        longma = movingAvg(long, values)
         default = ticker    #setting default value for request form
         #yahoo finance standard way to get long name from ticker
         url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
@@ -243,7 +249,7 @@ def stock():
         #end of yahoo standard way to get long name
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, dates=dates, ma=ma, min=min, max=max)
+    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, shortma=shortma, longma=longma, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
