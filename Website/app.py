@@ -41,19 +41,19 @@ class Stock(object):                        #stock class to create object/calcul
     def get_growth(self):
         return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)   #calculating growth
 
-def movingAvg(time, values):
+def movingAvg(time, values):    #function to calculate moving average, takes timeframe and list of price values
     v = []
     length = int(len(values)/time)
-    for i in range(length):
+    for i in range(length):     #looping for number of times through values
         total = 0
         a = values[i]
-        for x in range(time):
-            total = total + values[(x*i)+x]
+        for x in range(time):   #looping though all values in time frame
+            total = total + values[(x*i)+x] #summing values from timeframe
             b = values[(x*i)+x]
-        total = round(float(total/time),2)
+        total = round(float(total/time),2)  #calculating moving average
         diff = b - a
         slope = diff / time
-        for x in range(time):
+        for x in range(time):               #using point slope to calculate intermediate values to match with x axis
             intermed = round((slope * (x+1))+total,2)
             v.append(intermed)
     return v
