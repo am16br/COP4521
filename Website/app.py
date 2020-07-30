@@ -44,15 +44,18 @@ class Stock(object):                        #stock class to create object/calcul
 def movingAvg(time, dates, values):
     d = []
     v = []
-    length = int(len(dates)/time)
+    length = int(len(dates)/10)
     for i in range(length):
         total = 0
-        for x in range(time):
+        for x in range(10):
             total = total + values[(x*i)+x]
             day = dates[(x*i)+x]
-        total = round(float(total/time),2)
+        total = round(float(total/10),2)
         d.append(day)
         v.append(total)
+
+        for x in range(9):
+            v.append(total)
     return d, v
 
 #python-env\Scripts\activate.bat
