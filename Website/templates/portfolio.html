@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
+        <link rel="shortcut icon" href="static/pics/title-icon.png" />
         <title>Portfolio - Stocker</title>
         <link type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
         <link type="text/css" href="{{ url_for('static', filename='css/dataTables.bootstrap4.min.css') }}" rel="stylesheet"/>
@@ -71,20 +72,22 @@
                             </div>
                           </div>
                           <div class="card mb-4">
-                            <div class="card-header">Add to Your Portfolio</div>
+                            <div class="card-header"><i class="fas fa-plus"></i>
+                                Add to Your Portfolio
+                            </div>
                             <div class="card-body">
                                 <form action="{{url_for('portfolio')}}" method='post'>    <!--form sends data to app.py to be added to db-->
                                     <div class="row" style="margin-bottom: 20px;">
                                         <div class="col-xl-4" style="text-align: center;">
-                                            <h4>Stock Ticker:</h4>
+                                            <h5>Stock Ticker:</h5>
                                             <input type="text" id="ticker" name="ticker">
                                         </div>
                                         <div class="col-xl-4" style="text-align: center;">
-                                            <h4>Quanity:</h4>
+                                            <h5>Quanity:</h5>
                                             <input type="text" id="qty" name="qty">
                                         </div>
                                         <div class="col-xl-4" style="text-align: center;">
-                                            <h4>Purchase Price:</h4>
+                                            <h5>Purchase Price:</h5>
                                             <input type="text" id="price" name="price"><br>
                                         </div>
                                     </div>
@@ -130,18 +133,41 @@
                             </div>
                         </div>
                             <div class="card mb-4">
-                              <div class="card-header">Total Investment</div>
+                              <div class="card-header"><i class="fas fa-dollar-sign"></i>
+                                Your Statistics
+                            </div>
                               <div class="card-body">
                                       <div class="row" style="margin-bottom: 20px;">
-                                          <div class="col-xl-4" style="text-align: center;">
-                                              <h4>Initial Investment: ${{investment}}</h4>
-                                          </div>
-                                          <div class="col-xl-4" style="text-align: center;">
-                                              <h4>Current Value: ${{value}}</h4>
-                                          </div>
-                                          <div class="col-xl-4" style="text-align: center;">
-                                              <h4>Growth: {{growth}}%</h4>
-                                          </div>
+                                            <div class="col-xl-4" style="text-align: center;">
+                                                <div class="card mb-4">
+                                                    <div class="card-header">
+                                                        <h5>Initial Investment:</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <b>$</b>{{investment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-4" style="text-align: center;">
+                                                <div class="card mb-4">
+                                                    <div class="card-header">
+                                                        <h5>Current Value:</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <b>$</b>{{value}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-4" style="text-align: center;">
+                                                <div class="card mb-4">
+                                                    <div class="card-header">
+                                                        <h5>Growth:</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <b>$</b>{{growth}}
+                                                    </div>
+                                                </div>
+                                            </div>
                                       </div>
                                   </form>
                               </div>

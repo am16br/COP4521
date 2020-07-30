@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
+        <link rel="shortcut icon" href="static/pics/title-icon.png" />
         <title>Stock Finder - Stocker</title>
         <link type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
         <link type="text/css" href="{{ url_for('static', filename='css/dataTables.bootstrap4.min.css') }}" rel="stylesheet"/>
@@ -138,21 +139,29 @@
                                                 });
                                             }
                                         </script>
-                                        <form action="{{url_for('stock')}}" method='post'>    <!--form sends data to app.py to be added to db-->
-                                            <h5>Enter the Ticker Symbol:</h5>
-                                            <input type="text" id="ticker" name="ticker" placeholder="Example: TSLA" value="MSFT">
-                                            <div class="row" style="margin-bottom: 20px;">
-                                                <h5>Choose a Time Frame:</h5>
-                                                <select name="1" id="timeframe">
-                                                <option value="1 Week">1 Week</option>
-                                                <option value="1 Month">1 Month</option>
-                                                <option value="3 Months">3 Months</option>
-                                                <option value="6 Months">6 Months</option>
-                                                <option value="1 Year">1 Year</option>
-                                                <option value="5 Years">5 Years</option>
-                                                </select>
-                                            </div>
-                                            <input type="submit" value="Submit" name="1">
+                                            <form action="{{url_for('stock')}}" method='post'>    <!--form sends data to app.py to be added to db-->
+                                                <div class="row" style="text-align: center;">
+                                                    <div class="col">
+                                                        <h5>Enter the Ticker Symbol:</h5>
+                                                        <input type="text" id="ticker" name="ticker" placeholder="Example: TSLA" value="MSFT">
+                                                    </div>
+                                                    <div class="col"">
+                                                        <h5>Choose a Time Frame:</h5>
+                                                        <select name="1" id="timeframe">
+                                                        <option value="1 Week">1 Week</option>
+                                                        <option value="1 Month">1 Month</option>
+                                                        <option value="3 Months">3 Months</option>
+                                                        <option value="6 Months">6 Months</option>
+                                                        <option value="1 Year">1 Year</option>
+                                                        <option value="5 Years">5 Years</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row" style="text-align: center;">
+                                                    <div class="col"> 
+                                                        <input type="submit" value="Submit" name="1">
+                                                    </div>
+                                                </div>
                                         </form>
                                 </div>
                         <div class="card mb-4">
