@@ -222,7 +222,6 @@ def stock():
         os.remove(csvname)
     return render_template('stock.html', ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
-
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
     inv = 0
@@ -297,6 +296,18 @@ def portfolio():
             val = round((cur.fetchone()[0]),2)
             growth = round(((val-inv)/inv)*100,2)
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+
+@app.route('/login',methods=['GET','POST'])   #page to display user's portfolio
+def login():
+    return render_template('login.html')
+
+@app.route('/password',methods=['GET','POST'])   #page to display user's portfolio
+def password():
+    return render_template('password.html')
+
+@app.route('/register',methods=['GET','POST'])   #page to display user's portfolio
+def register():
+    return render_template('register.html')
 
 #if this were the main module, run the application
 if __name__ == '__main__':
