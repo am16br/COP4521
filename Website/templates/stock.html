@@ -96,7 +96,7 @@
                                                             "{{item}}",
                                                             {% endfor %}],
                                                 datasets: [{
-                                                    label: "Price: $",
+                                                    label: "{{ticker}} Price: $",
                                                     lineTension: 0.3,
                                                     backgroundColor: "rgba(2,117,216,0.2)",
                                                     borderColor: "rgba(2,117,216,1)",
@@ -112,7 +112,7 @@
                                                             {% endfor %}],
                                                     spanGaps: true,
                                                     }, {
-                                                    label: "Price: $",
+                                                    label: "{{short}} Day Moving Average: $",
                                                     lineTension: 0.3,
                                                     backgroundColor: "rgba(224,224,224,0.8)",
                                                     borderColor: "grey",
@@ -128,7 +128,7 @@
                                                             {% endfor %}],
                                                     spanGaps: false,
                                                     }, {
-                                                    label: "Price: $",
+                                                    label: "{{long}} Day Moving Average: $",
                                                     lineTension: 0.3,
                                                     backgroundColor: "pink",
                                                     borderColor: "red",
