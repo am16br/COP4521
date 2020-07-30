@@ -16,7 +16,7 @@ from yahoo_fin import stock_info as si
 import requests
 
 
-class Stock(object):                        #stock class to create object/calculate values for portfolio
+class Stock(object):                        #stock class to create object/calculate values for portfolio Aidan
     def __init__(self, tick, qty, purprice):    #initializing with ticker, quantity, and purchase price
         self.tick = tick
         self.qty = qty
@@ -53,8 +53,8 @@ app.config['ENV'] = True
 def home():
     endDate = date.today()                  #fetching todays date
     if request.method == 'POST':
-        if request.form["1"] == "1 Week":
-            startDate = date(endDate.year, endDate.month, endDate.day - 7)
+        if request.form["1"] == "1 Week":                   #buttons to set timeframe
+            startDate = date(endDate.year, endDate.month, endDate.day - 7)  #modifying start date for data to 1 week, month, year, etc
             mod = 1
         elif request.form["1"] == "1 Month":
             startDate = date(endDate.year, endDate.month - 1, endDate.day)
@@ -72,7 +72,7 @@ def home():
             startDate = date(endDate.year - 5, endDate.month, endDate.day)
             mod = 10
     else:
-        startDate = date(endDate.year, endDate.month, endDate.day - 7)    #getting date 5 years in the past
+        startDate = date(endDate.year, endDate.month, endDate.day - 7)    #getting date 1 week in the past
         mod = 1
     ticker = '^GSPC'                        #for S&P500
     csvname = (ticker + '.csv')
@@ -92,10 +92,10 @@ def home():
         #Delete old table, to avoid duplicates, and ensure most recent data
     cur.execute("""DROP TABLE IF EXISTS STOCK""")
     cur.execute('CREATE TABLE Stock(Date TEXT, High REAL, Low REAL, Open REAL, Close REAL, Volume INTEGER, AdjClose REAL);')
-
+    #creating table Stock to hold data (date, ohlc, volume, and adjusted close)
     iterations = 0
-    try:
-        with open(csvname) as csv_file:
+    try:                            #exception handling
+        with open(csvname) as csv_file:                 #opening csv to transfer to database
             csv_reader = csv.reader(csv_file, delimiter=',')
             next(csv_reader)
             for row in csv_reader:  #looping through csv
@@ -110,7 +110,7 @@ def home():
                                 VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                     #inserting data, row by row, into database
                 con.commit()        #commiting data to db
-                if iterations % mod == 0:
+                if iterations % mod == 0:           #choosing values to add for chart
                     labels.append(Date)     #adding date to labels list for chart
                     values.append(round(float(row[6]), 2))   #adding AdjClose to values list for chart
                 iterations += 1
@@ -125,7 +125,7 @@ def home():
         for item in values:         #looping through all values
             if float(item)>max:     #changing min and max if value is less than or greater than respectively
                 max=float(item)
-            if float(item)<min:
+            if float(item)<min:     #used for y axis of chart
                 min=float(item)
         con.close()             #closing connection
         os.remove(csvname)
@@ -141,8 +141,8 @@ def stock():
     ticker = '^DJI'
     endDate = date.today()                  #fetching todays date
     if request.method == 'POST':
-        ticker = request.form["ticker"]
-        if request.form["1"] == "1 Week":
+        ticker = request.form["ticker"]     #getting user entered stock ticker
+        if request.form["1"] == "1 Week":   #getting timeframe to pull data from
             startDate = date(endDate.year, endDate.month, endDate.day - 7)
             mod = 1
         elif request.form["1"] == "1 Month":
@@ -170,10 +170,10 @@ def stock():
     values = []
     if os.path.exists(csvname):
         os.remove(csvname)
-
-    df = web.DataReader(ticker, 'yahoo', startDate, endDate)
+    #using pandas datareader to pull stock's data from yahoo from start to end date
+    df = web.DataReader(ticker, 'yahoo', startDate, endDate)    
     df.to_csv(csvname)
-
+    #same as for homepage
     con = sqlite3.connect(dbname)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
@@ -213,12 +213,14 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
-        default = ticker
+        default = ticker    #setting default value for request form
+        #yahoo finance standard way to get long name from ticker
         url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
         result = requests.get(url).json()
         for x in result['ResultSet']['Result']:
             if x['symbol'] == ticker:
                 ticker= x['name']
+        #end of yahoo standard way to get long name
         con.close()
         os.remove(csvname)
     return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
@@ -248,7 +250,7 @@ def portfolio():
             #inserting data to db
             con.commit()    #commiting data to db
             cur.execute('SELECT * FROM Portfolio')
-            for row in cur:
+            for row in cur: #looping though database to get live price and recalculate any values
                 ticker = row[0]
                 qty = row[1]
                 cost = row[2]
@@ -257,6 +259,7 @@ def portfolio():
                 inv = round((cost * qty),2)
                 val = round((price * qty),2)
                 growth = round(((val-inv)/inv)*100,2)
+                #updating each row in portfolio
                 cur.execute('UPDATE Portfolio SET Price = ?, Investment = ?, Value = ?, Growth = ? WHERE Ticker = ?', (price, inv, val, growth, ticker,))
             cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
@@ -274,6 +277,7 @@ def portfolio():
     else:                                       #if page just loaded, nothing added to db
         cur.execute('SELECT * FROM Portfolio')
         for row in cur:
+            #updating price and recalculating data
             ticker = row[0]
             qty = row[1]
             cost = row[2]
@@ -285,16 +289,16 @@ def portfolio():
             cur.execute('UPDATE Portfolio SET Price = ?, Investment = ?, Value = ?, Growth = ? WHERE Ticker = ?', (price, inv, val, growth, ticker,))
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
-        if len(rows) == 0:
+        if len(rows) == 0:  #ensuring empty databse does not cause any errors
             inv=0
             val=0
             growth = 0
         else:
-            cur.execute('SELECT SUM(Investment) FROM Portfolio')
-            inv = round((cur.fetchone()[0]),2)
-            cur.execute('SELECT SUM(Value) FROM Portfolio')
+            cur.execute('SELECT SUM(Investment) FROM Portfolio')    #getting sum of investment column
+            inv = round((cur.fetchone()[0]),2)                  #fetching sum value
+            cur.execute('SELECT SUM(Value) FROM Portfolio')         #same for current value
             val = round((cur.fetchone()[0]),2)
-            growth = round(((val-inv)/inv)*100,2)
+            growth = round(((val-inv)/inv)*100,2)               #calculating growth percent
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
 
 @app.route('/login',methods=['GET','POST'])   #page to display user's portfolio
