@@ -54,7 +54,7 @@ def movingAvg(time, values):
         diff = b - a
         slope = diff / time
         for x in range(time):
-            intermed = (slope * x)+total
+            intermed = round((slope * x)+total,2)
             v.append(intermed)
     return v
 #python-env\Scripts\activate.bat
@@ -164,7 +164,7 @@ def stock():
             startDate = date(endDate.year, endDate.month, endDate.day - 7)
             mod = 1
             short = 1
-            long =7
+            long = 3
         elif request.form["1"] == "1 Month":
             startDate = date(endDate.year, endDate.month - 1, endDate.day)
             mod = 2
