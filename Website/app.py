@@ -309,6 +309,10 @@ def password():
 def register():
     return render_template('register.html')
 
+@app.route('/readme',methods=['GET','POST'])   #page to display user's portfolio
+def readme():
+    return render_template('README.html')
+
 #if this were the main module, run the application
 if __name__ == '__main__':
     app.run(debug=True)
