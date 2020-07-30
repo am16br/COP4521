@@ -43,25 +43,20 @@ class FeatureSelection:
   # in the regression. Because we standardize the labels, we
   # do not need to worry about predicting a constant value in 
   # the regression. 
-  # 
+  #
   # We also add a row at the top containing the indices of the 
   # original matrix so they can be returned at the end of the 
   # feature selection process.
   def normalize(self):
     self.X[1:,:] = self.X[1:,:] - np.mean(self.X[1:,:], axis=0)
     self.y = self.y - np.mean(self.y)
-
     std = np.std(self.X[1:,:], axis=0)
     usecol = std!=0
-
     # remove unused columns
     self.X = self.X[:,usecol]
-
     # divide by std for used columns
     self.X[1:,:] = self.X[1:,:]/std[usecol]
-
     return
-
 
   # Variable Elimination. The arguments are X, k (the number of
   # variables we wish to keep), i(the iteration we are on), mu (the shrinking
@@ -92,7 +87,6 @@ class FeatureSelection:
     grad = grad + 2*self.s*self.w
     return grad
  
-
   # Our Loss function is not simply the MSE, we also include
   # a shrinking parameter because we prefer a smaller number
   # of features, and it prevents sticking to local minima.
@@ -113,8 +107,6 @@ class FeatureSelection:
     self._k = k
     # contains the loss values for 
     self.lossArr = [[],[]]
-
-    
 
     it_num = range(1,Niter+1)
     self.normalize()
