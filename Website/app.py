@@ -227,6 +227,9 @@ def stock():
 def portfolio():
     inv = 0
     val = 0
+    ticks = []
+    invs = []
+    vals = []
     con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
     cur = con.cursor()
@@ -252,6 +255,9 @@ def portfolio():
             cur.execute('SELECT * FROM Portfolio')
             for row in cur:
                 ticker = row[0]
+                ticks.append(row[0])
+                invs.append(row[5])
+                vals.append(row[6])
                 price = si.get_live_price(ticker)
                 price = round(price,2)
                 cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
@@ -272,6 +278,9 @@ def portfolio():
         cur.execute('SELECT * FROM Portfolio')
         for row in cur:
             ticker = row[0]
+            ticks.append(row[0])
+            invs.append(row[5])
+            vals.append(row[6])
             price = si.get_live_price(ticker)
             price = round(price,2)
             cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
