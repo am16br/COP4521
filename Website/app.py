@@ -213,7 +213,7 @@ def stock():
                 max=float(item)
             if float(item)<min:
                 min=float(item)
-        default = ticker
+        tick = ticker
         url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(ticker.upper())
         result = requests.get(url).json()
         for x in result['ResultSet']['Result']:
@@ -221,15 +221,10 @@ def stock():
                 ticker= x['name']
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
+    return render_template('stock.html', tick=tick, ticker=ticker, rows=rows, labels=labels, values=values, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():
-    inv = 0
-    val = 0
-    ticks = []
-    invs = []
-    vals = []
     con = sqlite3.connect("Projecto.db")                   #connecting to/creating/opening database
     con.row_factory = sqlite3.Row
     cur = con.cursor()
@@ -255,12 +250,14 @@ def portfolio():
             cur.execute('SELECT * FROM Portfolio')
             for row in cur:
                 ticker = row[0]
-                ticks.append(row[0])
-                invs.append(row[5])
-                vals.append(row[6])
+                qty = row[1]
+                cost = row[2]
                 price = si.get_live_price(ticker)
                 price = round(price,2)
-                cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
+                inv = round((cost * qty),2)
+                val = round((price * qty),2)
+                growth = round(((val-inv)/inv)*100,2)
+                cur.execute('UPDATE Portfolio SET Price = ?, Investment = ?, Value = ?, Growth = ? WHERE Ticker = ?', (price, inv, val, growth, ticker,))
             cur.execute('SELECT * FROM Portfolio')
             rows = cur.fetchall()
             cur.execute('SELECT SUM(Investment) FROM Portfolio')    #getting sum of investment to show overall initial investment
@@ -278,12 +275,14 @@ def portfolio():
         cur.execute('SELECT * FROM Portfolio')
         for row in cur:
             ticker = row[0]
-            ticks.append(row[0])
-            invs.append(row[5])
-            vals.append(row[6])
+            qty = row[1]
+            cost = row[2]
             price = si.get_live_price(ticker)
             price = round(price,2)
-            cur.execute('UPDATE Portfolio SET Price = ? WHERE Ticker = ?', (price, ticker,))
+            inv = round((cost * qty),2)
+            val = round((price * qty),2)
+            growth = round(((val-inv)/inv)*100,2)
+            cur.execute('UPDATE Portfolio SET Price = ?, Investment = ?, Value = ?, Growth = ? WHERE Ticker = ?', (price, inv, val, growth, ticker,))
         cur.execute('SELECT * FROM Portfolio')
         rows = cur.fetchall()
         if len(rows) == 0:
