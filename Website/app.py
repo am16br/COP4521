@@ -156,44 +156,37 @@ def index():
 def stock():
     ticker = '^DJI'
     endDate = date.today()                  #fetching todays date
-    short = 1
-    long = 3
     if request.method == 'POST':
         ticker = request.form["ticker"]     #getting user entered stock ticker
         if request.form["1"] == "1 Week":   #getting timeframe to pull data from
             startDate = date(endDate.year, endDate.month, endDate.day - 7)
-            mod = 1
             short = 1
             long = 3
         elif request.form["1"] == "1 Month":
             startDate = date(endDate.year, endDate.month - 1, endDate.day)
-            mod = 2
             short = 5
             long = 10
         elif request.form["1"] == "3 Months":
             startDate = date(endDate.year, endDate.month - 3, endDate.day)
-            mod = 2
             short = 10
             long = 20
         elif request.form["1"] == "6 Months":
             startDate = date(endDate.year, endDate.month - 6, endDate.day)
-            mod = 2
             short = 10
             long = 30
         elif request.form["1"] == "1 Year":
             startDate = date(endDate.year - 1, endDate.month, endDate.day)
-            mod = 5
             short = 20
             long = 50
         else:
             startDate = date(endDate.year - 5, endDate.month, endDate.day)
-            mod = 10
             short = 100
             long = 200
 
     else:
         startDate = date(endDate.year, endDate.month, endDate.day - 7)
-        mod = 1
+            short = 1
+            long = 3
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
@@ -226,10 +219,8 @@ def stock():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-                if iterations % 1 == 0:
-                    labels.append(Date)
-                    values.append(AdjClose)
-                iterations += 1
+                labels.append(Date)
+                values.append(AdjClose)
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
