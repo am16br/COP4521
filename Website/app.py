@@ -276,8 +276,8 @@ def portfolio():
     cur.execute('CREATE TABLE IF NOT EXISTS Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
     #creating table to hold portfolio positions
     if request.method == 'POST':    #POST to get info from user (stock ticker, quantity purchases, and purchase price
-        ticker = request.form["ticker"]
-        qty = request.form["qty"]
+        ticker = request.form["tick"]
+        qty = request.form["quant"]
         purprice = request.form["price"]
         obj = Stock(ticker,qty,purprice)    #creating object from user data with class previously defined
         try:

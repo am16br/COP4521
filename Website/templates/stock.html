@@ -190,24 +190,36 @@
                                             <form action="{{url_for('stock')}}" method='post'>    <!--form sends data to app.py to be added to db-->
                                                 <div class="row" style="text-align: center;">
                                                     <div class="col">
-                                                        <h5>Enter the Ticker Symbol:</h5>
-                                                        <input type="text" id="ticker" name="ticker" placeholder="^DJI" value={{default}}>
+                                                        <div class="card mb-4">
+                                                            <div class="card-header">
+                                                                <h5>Enter the Ticker Symbol:</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <input type="text" id="ticker" name="ticker" placeholder="^DJI" value={{default}}>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="col"">
-                                                        <h5>Choose a Time Frame:</h5>
-                                                        <select name="1" id="timeframe">
-                                                        <option value="1 Week">1 Week</option>
-                                                        <option value="1 Month">1 Month</option>
-                                                        <option value="3 Months">3 Months</option>
-                                                        <option value="6 Months">6 Months</option>
-                                                        <option value="1 Year">1 Year</option>
-                                                        <option value="5 Years">5 Years</option>
-                                                        </select>
+                                                        <div class="card mb-4">
+                                                            <div class="card-header">
+                                                                <h5>Choose a Time Frame:</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <select name="1" id="timeframe">
+                                                                <option value="1 Week">1 Week</option>
+                                                                <option value="1 Month">1 Month</option>
+                                                                <option value="3 Months">3 Months</option>
+                                                                <option value="6 Months">6 Months</option>
+                                                                <option value="1 Year">1 Year</option>
+                                                                <option value="5 Years">5 Years</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="row" style="text-align: center;">
+                                                <div class="row" style="text-align: center; padding-bottom: 20px;">
                                                     <div class="col"> 
-                                                        <input type="submit" value="Submit" name="1">
+                                                        <input type="submit" value="Submit" name="1" style="color: white; background-color: #0274d8; border: none;">
                                                     </div>
                                                 </div>
                                         </form>
