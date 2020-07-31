@@ -152,6 +152,21 @@ def home():
 def index():
     return redirect(url_for('home'))
 
+@app.route('/sell', methods=['POST'])                           #takes you to the route
+def sell():
+    dbname = ('Projecto.db')
+    ticker = request.form["ticker"]
+    quantity = request.form["qty"]
+
+    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
+    cur = con.cursor()
+
+    cur.execute('DELETE FROM Portfolio WHERE Ticker = (?);',(ticker,))
+    con.commit()
+    con.close()
+
+    return redirect(url_for('portfolio'))
+
 @app.route('/stock', methods=['GET','POST'])    #similar to above
 def stock():
     ticker = '^DJI'
@@ -185,8 +200,8 @@ def stock():
 
     else:
         startDate = date(endDate.year, endDate.month, endDate.day - 7)
-            short = 1
-            long = 3
+        short = 1
+        long = 3
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []

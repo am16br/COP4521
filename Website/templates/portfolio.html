@@ -105,6 +105,30 @@
                             </div>
                         </div>
                         <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-plus"></i>
+                                Sell Your Stock
+                            </div>
+                            <div class="card-body">
+                                <form action="{{url_for('sell')}}" method='post'>    <!--form sends data to app.py to be added to db-->
+                                    <div class="row" style="margin-bottom: 20px;">
+                                        <div class="col" style="text-align: center;">
+                                            <h5>Stock Ticker:</h5>
+                                            <input type="text" id="ticker" name="ticker">
+                                        </div>
+                                        <div class="col" style="text-align: center;">
+                                            <h5>Quanity:</h5>
+                                            <input type="text" id="qty" name="qty">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="text-align: center;">
+                                        <div class="col-xl-12">
+                                            <input type="submit" value="Submit">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table mr-1"></i>
                                 Portfolio
