@@ -41,20 +41,20 @@ class Stock(object):                        #stock class to create object/calcul
     def get_growth(self):
         return round((float(self.get_val())-float(self.get_inv()))/(float(self.get_inv()))*100,2)   #calculating growth
 
-def movingAvg(time, values):
+def movingAvg(time, values):    #function to calculate moving average, takes timeframe and list of price values
     v = []
     length = int(len(values)/time)
-    for i in range(length):
+    for i in range(length):     #looping for number of times through values
         total = 0
         a = values[i]
-        for x in range(time):
-            total = total + values[(x*i)+x]
+        for x in range(time):   #looping though all values in time frame
+            total = total + values[(x*i)+x] #summing values from timeframe
             b = values[(x*i)+x]
-        total = round(float(total/time),2)
+        total = round(float(total/time),2)  #calculating moving average
         diff = b - a
         slope = diff / time
-        for x in range(time):
-            intermed = round((slope * x)+total,2)
+        for x in range(time):               #using point slope to calculate intermediate values to match with x axis
+            intermed = round((slope * (x+1))+total,2)
             v.append(intermed)
     return v
 #python-env\Scripts\activate.bat
@@ -156,44 +156,37 @@ def index():
 def stock():
     ticker = '^DJI'
     endDate = date.today()                  #fetching todays date
-    short = 1
-    long = 7
     if request.method == 'POST':
         ticker = request.form["ticker"]     #getting user entered stock ticker
         if request.form["1"] == "1 Week":   #getting timeframe to pull data from
             startDate = date(endDate.year, endDate.month, endDate.day - 7)
-            mod = 1
             short = 1
             long = 3
         elif request.form["1"] == "1 Month":
             startDate = date(endDate.year, endDate.month - 1, endDate.day)
-            mod = 2
             short = 5
             long = 10
         elif request.form["1"] == "3 Months":
             startDate = date(endDate.year, endDate.month - 3, endDate.day)
-            mod = 2
             short = 10
             long = 20
         elif request.form["1"] == "6 Months":
             startDate = date(endDate.year, endDate.month - 6, endDate.day)
-            mod = 2
             short = 10
             long = 30
         elif request.form["1"] == "1 Year":
             startDate = date(endDate.year - 1, endDate.month, endDate.day)
-            mod = 5
             short = 20
             long = 50
         else:
             startDate = date(endDate.year - 5, endDate.month, endDate.day)
-            mod = 10
-            short = 50
-            long = 100
+            short = 100
+            long = 200
 
     else:
         startDate = date(endDate.year, endDate.month, endDate.day - 7)
-        mod = 1
+            short = 1
+            long = 3
     csvname = (ticker + '.csv')
     dbname = ('Projecto.db')
     labels = []
@@ -226,9 +219,8 @@ def stock():
                 cur.execute("""INSERT INTO Stock(Date, High, Low , Open, Close, Volume, AdjClose)
                             VALUES (?, ?, ?, ?, ?, ?, ?);""", (Date, High, Low, Open, Close, Volume, AdjClose))
                 con.commit()
-                if iterations % 1 == 0:
-                    labels.append(Date)
-                    values.append(AdjClose)
+                labels.append(Date)
+                values.append(AdjClose)
         cur.execute('SELECT * FROM Stock')
         rows = cur.fetchall();
     except:
@@ -259,7 +251,7 @@ def stock():
         #end of yahoo standard way to get long name
         con.close()
         os.remove(csvname)
-    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, shortma=shortma, longma=longma, min=min, max=max)
+    return render_template('stock.html', default=default, ticker=ticker, rows=rows, labels=labels, values=values, shortma=shortma, longma=longma, short=short, long=long, min=min, max=max)
 
 @app.route('/portfolio',methods=['GET','POST'])   #page to display user's portfolio
 def portfolio():

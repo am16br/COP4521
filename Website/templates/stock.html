@@ -124,7 +124,7 @@
                                                     pointHoverBackgroundColor: "black",
                                                     pointHitRadius: 50,
                                                     pointBorderWidth: 2,
-                                                    data: [{% for item in longma %}
+                                                    data: [{% for item in shortma %}
                                                                 {{item}},
                                                             {% endfor %}],
                                                     spanGaps: false,
@@ -141,7 +141,7 @@
                                                     pointHoverBackgroundColor: "red",
                                                     pointHitRadius: 50,
                                                     pointBorderWidth: 2,
-                                                    data: [{% for item in shortma %}
+                                                    data: [{% for item in longma %}
                                                                 {{item}},
                                                             {% endfor %}],
                                                     spanGaps: false,
