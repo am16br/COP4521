@@ -152,21 +152,6 @@ def home():
 def index():
     return redirect(url_for('home'))
 
-@app.route('/sell', methods=['POST'])                           #takes you to the route
-def sell():
-    dbname = ('Projecto.db')
-    ticker = request.form["tick"]
-    quantity = request.form["quant"]
-
-    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
-    cur = con.cursor()
-
-    cur.execute('DELETE FROM Portfolio WHERE Ticker = (?);',(ticker,))
-    con.commit()
-    con.close()
-
-    return redirect(url_for('portfolio'))
-
 @app.route('/stock', methods=['GET','POST'])    #similar to above
 def stock():
     ticker = '^DJI'
