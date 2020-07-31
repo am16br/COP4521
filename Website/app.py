@@ -276,7 +276,7 @@ def portfolio():
     cur.execute('CREATE TABLE IF NOT EXISTS Portfolio(Ticker TEXT, Quantity REAL, Cost REAL, Price REAL, Investment REAL, Value, REAL, Growth REAL);')
     #creating table to hold portfolio positions
     if request.method == 'POST':    #POST to get info from user (stock ticker, quantity purchases, and purchase price
-        ticker = request.form["ticker"]
+        ticker = request.form["ticker"].upper()
         qty = request.form["qty"]
         purprice = request.form["price"]
         obj = Stock(ticker,qty,purprice)    #creating object from user data with class previously defined
@@ -343,6 +343,33 @@ def portfolio():
             val = round((cur.fetchone()[0]),2)
             growth = round(((val-inv)/inv)*100,2)               #calculating growth percent
         return render_template('portfolio.html', rows=rows, investment=inv, value=val, growth=growth)
+
+@app.route('/sell', methods=['POST'])                           #takes you to the route
+def sell():
+    dbname = ('Projecto.db')
+    ticker = request.form["tick"].upper()
+    quantity = float(request.form["quant"])
+    con = sqlite3.connect(dbname)                   #connecting to/creating/opening database
+    cur = con.cursor()
+    cur.execute('SELECT * FROM Portfolio')
+    for row in cur:                 #loop to check for match
+        if row[0] == ticker:
+            qty = row[1] - quantity #modifying quantity
+            if qty == 0:
+                cur.execute('DELETE FROM Portfolio WHERE Ticker = ?;',(ticker,))    #deleting from table if holding no stock
+            else:
+                cost = row[2]                       #updating stock after sale
+                price = si.get_live_price(ticker)
+                price = round(price,2)
+                inv = round((cost * qty),2)
+                val = round((price * qty),2)
+                growth = round(((val-inv)/inv)*100,2)
+                cur.execute('UPDATE Portfolio SET Quantity = ?, Price = ?, Investment = ?, Value = ?, Growth = ? WHERE Ticker = ?', (qty, price, inv, val, growth, ticker,))
+
+    con.commit()
+    con.close()
+
+    return redirect(url_for('portfolio'))
 
 @app.route('/login',methods=['GET','POST'])   #page to display user's portfolio
 def login():
